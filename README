@@ -1,0 +1,83 @@
+This directory contains two programs; mt and stinit. Mt is basically
+a "standard" mt with additional commands to send the ioctls specific
+to the Linux SCSI tape driver. The source supports all ioctls up to
+kernel version 2.4.0 but it can also be compiled in kernels >= 2.0.x
+(and hopefully with 1.2.x). Although this mt program is tailored for
+SCSI tapes, it can also be used with other Linux tape drivers using the
+same ioctls (some of the commands may not work with all drivers).
+
+Stinit is a program to initialize the tape drive characteristics. The
+current version should be considered alpha. See README.stinit for more
+information.
+
+The files:
+README        - This file.
+README.stinit - Information about the stinit program
+COPYING       - The GNU Public License
+Makefile      - Makefile for programs
+mt.c          - The mt source
+mt.1          - The man page for mt
+mtio.h	      - The tape command definitions
+qic117.h      - Needed by mtio.h
+stinit.c      - The stinit source
+stinit.8      - The man page for stinit
+stinit.def.examples - example configurations for different devices
+
+Installation:
+- review the makefile
+- make
+- make install
+
+Changes in version 0.7:
+- add command eject for compatibility with GNU mt (synonym for offline
+  and rewoffl)
+- the load and ersae commands accept an argument
+- add CLN (cleaning request) to status
+- add command stsetcln to set the cleaning request recognition options
+- add the flag no-wait to the settable/clearable options
+- some new density codes added
+
+Changes in version 0.6:
+- uses local mtio.h to include support for the most recent driver
+  features even when compiled on a system having old mtio.h
+- on-line and write-protect are checked after some errors and a
+  message is printed if the probable error reason is found
+- the tape is opened with flag O_NONBLOCK for commands that are
+  useful even when the device is not ready (no tape)
+- some new density codes added for printout
+- OnStream drives using the osst driver recognised
+- the obsolete command 'datcompression' is removed
+- new option --version in mt
+
+Changes in version 0.5b:
+- corrected the bug that caused the command argument to be ignored if
+  option -f was used
+- added #include <errno.h> to stinit.c to enable compilation with glibc
+- density 0x45 (TR-4) added to known density list
+
+Changes in version 0.5:
+- utility stinit added to package
+- command asf added
+- command datcompression not compiled in default configuration
+- support added for setting timeouts
+- bugs in argument parsing corrected
+- help prints all commands
+- binaries not distributed any more
+- mt code cleaned
+- GNU Public License used for both programs
+
+Changes in version 0.4:
+- support for the ioctls for partitioned tapes
+- compiles also with 1.2.13
+- the driver options can be specified also with keywords
+- floppy tape type is shown
+- (not working) support for other operating systems removed
+
+Changes in version 0.3:
+- support for new ioctls
+- accepts hexadecimal numbers with prefix 0x
+- the datcompression command improved (although it is being overrided
+  by the command compression using a new ioctl)
+- bus fixes
+
+November 8, 2001  Kai Makisara (email Kai.Makisara@metla.fi)

@@ -1,0 +1,58 @@
+# This file contains example definitions for different kinds of tape
+# devices. If the user agrees with the definitions, they can be used
+# in the definition file stinit.def by changing the manufacturer and
+# model fields to correspond the real tape device being defined.
+
+# The common definitions that can usually be used
+{buffer-writes read-ahead async-writes scsi2logical=1}
+
+# A non-compressing DAT (DDS-1)
+# The manufacturer, model, and revision strings can be obtained,
+# from the file /proc/scsi/scsi (cat /proc/scsi/scsi).
+manufacturer=XYZ model = "UVW1" {
+scsi2logical=1 can-bsr can-partitions auto-lock
+mode1 blocksize=0
+mode2 blocksize=1024 }
+
+# A compressing DAT (DDS-1-DC or DDS-[234])
+manufacturer=XYZ model = "UVW2" {
+can-bsr can-partitions auto-lock
+mode1 blocksize=0 compression=1
+mode2 blocksize=1024 compression=1
+mode3 blocksize=0 compression=0
+mode4 blocksize = 1024 compression=0 }
+
+# A QIC-150 drive
+manufacturer=XYZ model="UVW3" {
+scsi2logical=0
+mode1  # blocksize=512 defined by drive
+}
+
+# A QIC-320/525 drive
+manufacturer=XYZ model="UVW4" {
+defs-for-writes
+mode1 blocksize=0 density=0x11     # QIC-320
+mode2 blocksize=1024 density=0x11  # QIC-320
+mode3 blocksize=512 density=0x10   # QIC-150
+}
+
+
+# Exabyte 8505 and other similar 8 mm helical scan driver
+manufacturer=XYZ model = "UVW5" {
+can-bsr auto-lock
+cleaning=0x080821
+mode1 blocksize=0 density=0x8c  # 8500 density, compressing
+mode2 blocksize=0 density=0x15  # 8500 density, no compression
+mode3 blocksize=0 density=0x90  # 8200 density, compressing
+mode4 blocksize=0 density=0x14  # 8200 density, no compression
+}
+
+# A reel-to-reel tape with 6250/1600/800 bpi densities
+manufacturer=XYZ model = "UVW6" {
+can-bsr two-fms
+scsi2logical=0
+mode1 blocksize=0 density=3   # 6250 bpi
+mode2 blocksize=0 density=11  # 1600 bpi
+mode3 blocksize=0 density=1   #  800 bpi
+}
+

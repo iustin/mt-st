@@ -1,0 +1,51 @@
+The program stinit is meant for initializing of SCSI tape drive modes
+at system startup, when the tape driver module is loaded, or when new
+tape drivers are initialized using
+echo "scsi add-single-device" x y z v >/proc/scsi/scsi
+
+The parameters used in initialization of a tape drive are fetched from
+a text file. The parameter file is indexed by the inquiry data
+returned by the drive, i.e., the parameters are defined by the drive
+manufacturer, model, etc. This means that the initialization for a
+drive does not depend on its hardware address. A similar method is
+used by most Unices either within the kernel or outside the kernel.
+
+The contents of the configuration file and the command line parameters
+are defined in the man page stinit.8. A sample configuration file
+stinit.def.examples is included in this distribution. It can be used as
+example when writing descriptions for the tape drives in a
+system. NOTE that the examples by no means specify what are the
+"correct" parameters for different types of devices.
+
+The program is configured for maximum of 32 tapes and 4 modes (the
+default Linux configuration). If the kernel is configured for
+different number of tape modes, the definitions MAX_TAPES and
+NBR_MODES in stinit.c should be configured accordingly. (With 8 bit
+minor numbers NBR_MODES * MAX_TAPES == 128.)
+
+The files:
+stinit.c            - the program source code
+stinit.8            - the man page
+stinit.def.examples - a file containing example definitions for
+                      imaginary tape drives
+Makefile            - a sample makefile for the program
+README.stinit       - this file
+
+Changes in version 0.7:
+- the directory scanning for tape devices is restricted to files with
+  certain names in some directories to avoid triggering automatic
+  module loading for device that don't exist (original patch from
+  Philippe Troin)
+- support for devfs (/dev/tapes) added
+- logging bug fixes
+- add setting the cleaning request parameter
+- add setting the no-wait (immediate) bit
+
+Changes in version 0.6:
+- fix the bug with whitespace at the beginning of lines
+- use O_NONBLOCK to open the tape (anticipate kernel change)
+
+Initial version 0.5.
+
+November 8, 2001  Kai Mäkisara <Kai.Makisara@metla.fi>
+
