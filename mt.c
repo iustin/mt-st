@@ -4,16 +4,12 @@
 	supports several commands designed for use with the Linux SCSI
 	tape drive.
 
-	Maintained by Kai Mäkisara (email Kai.Makisara@metla.fi)
-	Copyright by Kai Mäkisara, 1998 - 2001. The program may be distributed
+	Maintained by Kai Mäkisara (email Kai.Makisara@kolumbus.fi)
+	Copyright by Kai Mäkisara, 1998 - 2004. The program may be distributed
 	according to the GNU Public License
 
-	Last Modified: Wed Nov 21 23:14:29 2001 by makisara@kai.makisara.local
+	Last Modified: Tue Apr 13 21:26:24 2004 by makisara
 */
-
-#ifndef lint
-static char rcsid[] = "$Id: /home/makisara/src/sys/mt-st-0.7/mt.c at Wed Nov 21 23:14:29 2001 by makisara@kai.makisara.local$";
-#endif
 
 #include <stdio.h>
 #include <unistd.h>
@@ -31,7 +27,7 @@ static char rcsid[] = "$Id: /home/makisara/src/sys/mt-st-0.7/mt.c at Wed Nov 21 
 #define DEFTAPE "/dev/tape"     /* default tape device */
 #endif /* DEFTAPE */
 
-#define VERSION "0.7"
+#define VERSION "0.8"
 
 typedef int (* cmdfunc)(/* int, struct cmdef_tr *, int, char ** */);
 
@@ -214,6 +210,7 @@ static struct densities {
     {0x29, "QIC-3080MC"},
     {0x30, "AIT-1 or MLR3"},
     {0x31, "AIT-2"},
+    {0x32, "AIT-3"},
     {0x33, "SLR6"},
     {0x34, "SLR100"},
     {0x40, "DLT1 40 GB, or Ultrium"},
@@ -231,7 +228,10 @@ static struct densities {
     {0x88, "DLT 40GB uncompressed"},
     {0x89, "DLT 40GB compressed"},
     {0x8c, "EXB-8505 compressed"},
-    {0x90, "EXB-8205 compressed"}
+    {0x90, "SDLT110 uncompr/EXB-8205 compr"},
+    {0x91, "SDLT110 compressed"},
+    {0x92, "SDLT160 uncompressed"},
+    {0x93, "SDLT160 comprssed"}
 };
 
 #define NBR_DENSITIES (sizeof(density_tbl) / sizeof(struct densities))
@@ -257,6 +257,7 @@ static struct booleans {
 #ifdef MT_ST_SYSV
     {"sysv",	      MT_ST_SYSV,	   "enable the SystemV semantics"},
 #endif
+    {"cleaning",      MT_ST_SET_CLN,	   "set the cleaning bit location and mask"},
     {NULL, 0}};
 
 static char *tape_name;   /* The tape name for messages */
@@ -407,9 +408,18 @@ usage(int explain)
 do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 {
     struct mtop mt_com;
+    char *endp;
 
     mt_com.mt_op = cmd->cmd_code;
-    mt_com.mt_count = (argc > 0 ? strtol(*argv, NULL, 0) : 1);
+    mt_com.mt_count = (argc > 0 ? strtol(*argv, &endp, 0) : 1);
+    if (argc > 0 && endp != *argv) {
+	if (*endp == 'k')
+	    mt_com.mt_count *= 1024;
+	else if (*endp == 'M')
+	    mt_com.mt_count *= 1024 * 1024;
+	else if (*endp == 'G')
+	    mt_com.mt_count *= 1024 * 1024 * 1024;
+    }
     mt_com.mt_count |= cmd->cmd_count_bits;
     if (mt_com.mt_count < 0) {
 	fprintf(stderr, "mt: negative repeat count\n");

@@ -1,4 +1,4 @@
-.TH MT 1 "November 2001" \" -*- nroff -*-
+.TH MT 1 "April 2004" \" -*- nroff -*-
 .SH NAME
 mt \- control magnetic tape drive operation
 .SH SYNOPSIS
@@ -17,7 +17,7 @@ option. The version of mt is printed with the
 .I \-v
 or
 .I \-\-version
-option. The path of the tape device to operate on can be given with
+option. The path of the tape device on which to operate can be given with
 the
 .I \-f
 or
@@ -30,7 +30,14 @@ is set, it is used.  Otherwise, a default device defined in the file
 is used.
 .PP
 Some operations optionally take an argument or repeat count, which can be given
-after the operation name and defaults to 1.
+after the operation name and defaults to 1. The postfix
+.I k
+,
+.I M
+, or
+.I G
+can be used to give counts in units of 1024, 1024 * 1024, or 1024 *
+1024 * 1024, respectively.
 .PP
 The available operations are listed below.  Unique abbreviations are
 accepted.  Not all operations are available on all systems, or work on
@@ -80,7 +87,7 @@ setmarks.
 setmarks.
 .IP "eod, seod"
 Space to end of valid data.  Used on streamer tape
-drives to append data to the logical and of tape.
+drives to append data to the logical end of tape.
 .IP rewind
 Rewind the tape.
 .IP "offline, rewoffl, eject"
@@ -159,7 +166,7 @@ standard output.
 .I number.
 The proper value for unbuffered operation is zero and "normal" buffered
 operation one. The meanings of other values can be found in the drive
-documentation or, in case of a SCSI-2 drive, from the SCSI-2 standard.
+documentation or, in the case of a SCSI-2 drive, from the SCSI-2 standard.
 .IP compression
 (SCSI tapes) The compression within the drive can be switched on or
 off using the MTCOMPRESSION ioctl. Note that this method is not
@@ -168,7 +175,7 @@ Exabyte 8 mm drives use density codes to select compression.
 .IP stoptions
 (SCSI tapes) Set the driver options bits for the device to the defined
 values. Allowed only for the superuser. The bits can be set
-either by oring the option bits from the file /usr/include/linux/mtio.h to
+either by ORing the option bits from the file /usr/include/linux/mtio.h to
 .I count,
 or by using the following keywords (as many keywords can be used on
 the same line as necessary, unambiguous abbreviations allowed):
@@ -192,7 +199,7 @@ automatically lock/unlock drive door
 .IP def-writes
 the block size and density are for writes
 .IP can-bsr
-drive can space backwards well
+drive can space backwards as well
 .IP no-blklimits
 drive doesn't support read block limits
 .IP can-partitions
@@ -204,12 +211,15 @@ dependent addresses
 enable the System V semantics
 .RE
 .IP stsetoptions
-(SCSI tapes) Set selected driver options bits. The methods to specify
-the bits to set are given above in description of stoptions.
+(SCSI tapes) Set selected driver options bits.
+The methods to specify the bits to set are given above in the
+description of
+.BR stoptions.
 Allowed only for the superuser.
 .IP stclearoptions
-(SCSI tapes) Clear selected driver option bits. The methods to specify
-the bits to clear are given above in description of stoptions.
+(SCSI tapes) Clear selected driver option bits.
+The methods to specify the bits to clear are given above in description of
+.BR stoptions.
 Allowed only for the superuser.
 .IP stwrthreshold
 (SCSI tapes) The write threshold for the tape device is set to
@@ -256,9 +266,9 @@ exits with a status of 0 if the operation succeeded, 1 if the
 operation or device name given was invalid, or 2 if the operation
 failed.
 .SH AUTHOR
-The program is written by Kai Makisara <Kai.Makisara@metla.fi>.
+The program is written by Kai Makisara <Kai.Makisara@kolumbus.fi>.
 .SH COPYRIGHT
-The program and the manual page are copyrighted by Kai Makisara, 1998-2001.
+The program and the manual page are copyrighted by Kai Makisara, 1998-2004.
 They can be distributed according to the GNU Copyleft.
 .SH SEE ALSO
 st(4)

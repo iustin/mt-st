@@ -1,16 +1,12 @@
 /* This program initializes Linux SCSI tape drives using the
    inquiry data from the devices and a text database.
 
-   Copyright 1996-2001 by Kai Mäkisara (email Kai.Makisara@metla.fi)
+   Copyright 1996-2004 by Kai Mäkisara (email Kai.Makisara@kolumbus.fi)
    Distribution of this program is allowed according to the
    GNU Public Licence.
 
-   Last modified: Thu Nov  8 21:13:48 2001 by makisara@kai.makisara.local
+   Last modified: Tue Apr 13 21:26:42 2004 by makisara
 */
-
-#ifndef lint
-static char rcsid[] = "$Id: /usr2/users/makisara/src/sys/mt-st-0.7/stinit.c at Thu Nov  8 21:13:48 2001 by makisara@kai.makisara.local$";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,7 +29,7 @@ static char rcsid[] = "$Id: /usr2/users/makisara/src/sys/mt-st-0.7/stinit.c at T
 #endif
 #define SKIP_WHITE(p) for ( ; *p == ' ' || *p == '\t'; p++)
 
-#define VERSION "0.7"
+#define VERSION "0.8"
 
 typedef struct _modepar_tr {
     int defined;
@@ -77,10 +73,10 @@ static int verbose = 0;
 /* The device directories being searched */
 typedef struct 
 {
-    const char *dir;
+    char dir[PATH_MAX];
     int selective_scan;
 } devdir;
-static devdir devdirs[] = { {"/dev/scsi", 0}, {"/dev", 1}, {NULL, 0}};
+static devdir devdirs[] = { {"/dev/scsi", 0}, {"/dev", 1}, {"", 0}};
 
 #define DEVFS_PATH    "/dev/tapes"
 #define DEVFS_TAPEFMT DEVFS_PATH "/tape%d"
@@ -191,6 +187,24 @@ find_string(char *s, char *target, char *buf, int buflen)
     }
     return NULL;
 }
+
+
+	static int
+num_arg(char *t)
+{
+    int nbr;
+    char *tt;
+
+    nbr = strtol(t, &tt, 0);
+    if (t != tt) {
+	if (*tt == 'k')
+	    nbr *= 1024;
+	else if (*tt == 'M')
+	    nbr *= 1024 * 1024;
+    }
+    return nbr;
+}
+
 
 	static int
 next_block(FILE *dbf, char *buf, int buflen, int limiter)
@@ -346,47 +360,47 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs,
 	    }
 
 	    if ((t = find_string(defstr, "drive-", line, LINEMAX)) != NULL)
-		defs->drive_buffering = strtol(t, NULL, 0);		
+		defs->drive_buffering = num_arg(t);
 	    if ((t = find_string(defstr, "timeout", line, LINEMAX)) != NULL)
-		defs->timeout = strtol(t, NULL, 0);
+		defs->timeout = num_arg(t);
 	    if ((t = find_string(defstr, "long-time", line, LINEMAX)) != NULL)
-		defs->long_timeout = strtol(t, NULL, 0);
+		defs->long_timeout = num_arg(t);
 	    if ((t = find_string(defstr, "clean", line, LINEMAX)) != NULL)
-		defs->cleaning = strtol(t, NULL, 0);
+		defs->cleaning = num_arg(t);
 	    if ((t = find_string(defstr, "no-w", line, LINEMAX)) != NULL)
-		defs->nowait = strtol(t, NULL, 0);
+		defs->nowait = num_arg(t);
 
 	    defs->modedefs[mode].defined = TRUE;
 	    if ((t = find_string(defstr, "block", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].blocksize = strtol(t, NULL, 0);		
+		defs->modedefs[mode].blocksize = num_arg(t);
 	    if ((t = find_string(defstr, "dens", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].density = strtol(t, NULL, 0);
+		defs->modedefs[mode].density = num_arg(t);
 	    if ((t = find_string(defstr, "buff", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].buffer_writes = strtol(t, NULL, 0);
+		defs->modedefs[mode].buffer_writes = num_arg(t);
 	    if ((t = find_string(defstr, "async", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].async_writes = strtol(t, NULL, 0);
+		defs->modedefs[mode].async_writes = num_arg(t);
 	    if ((t = find_string(defstr, "read", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].read_ahead = strtol(t, NULL, 0);
+		defs->modedefs[mode].read_ahead = num_arg(t);
 	    if ((t = find_string(defstr, "two", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].two_fm = strtol(t, NULL, 0);
+		defs->modedefs[mode].two_fm = num_arg(t);
 	    if ((t = find_string(defstr, "comp", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].compression = strtol(t, NULL, 0);
+		defs->modedefs[mode].compression = num_arg(t);
 	    if ((t = find_string(defstr, "auto", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].auto_lock = strtol(t, NULL, 0);
+		defs->modedefs[mode].auto_lock = num_arg(t);
 	    if ((t = find_string(defstr, "fast", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].fast_eod = strtol(t, NULL, 0);
+		defs->modedefs[mode].fast_eod = num_arg(t);
 	    if ((t = find_string(defstr, "can-b", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].can_bsr = strtol(t, NULL, 0);
+		defs->modedefs[mode].can_bsr = num_arg(t);
 	    if ((t = find_string(defstr, "noblk", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].no_blklimits = strtol(t, NULL, 0);
+		defs->modedefs[mode].no_blklimits = num_arg(t);
 	    if ((t = find_string(defstr, "can-p", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].can_partitions = strtol(t, NULL, 0);
+		defs->modedefs[mode].can_partitions = num_arg(t);
 	    if ((t = find_string(defstr, "scsi2", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].scsi2logical = strtol(t, NULL, 0);
+		defs->modedefs[mode].scsi2logical = num_arg(t);
 	    if ((t = find_string(defstr, "sysv", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].sysv = strtol(t, NULL, 0);
+		defs->modedefs[mode].sysv = num_arg(t);
 	    if ((t = find_string(defstr, "defs-for-w", line, LINEMAX)) != NULL)
-		defs->modedefs[mode].defs_for_writes = strtol(t, NULL, 0);
+		defs->modedefs[mode].defs_for_writes = num_arg(t);
 
 	    for (t=defstr; *t == ' ' || *t == '\t'; t++)
 		;
@@ -468,9 +482,10 @@ do_inquiry(char *tname, char *company, char *product, char *rev, int print_non_f
     result = ioctl(fn, SCSI_IOCTL_SEND_COMMAND, buffer);
     if (result) {
 	close(fn);
-	fprintf(stderr,
-		"The SCSI INQUIRY for device '%s' failed (power off?).\n",
+	sprintf(buffer,
+		"The SCSI INQUIRY for device '%s' failed (power off?)",
 		tname);
+	perror(buffer);
 	return FALSE;
     }
 
@@ -563,10 +578,12 @@ find_devfiles(int tapeno, char **names)
     int non_rew[NBR_MODES];
     struct dirent *dent;
     DIR *dirp;
-    char tmpname[PATH_MAX], devname[PATH_MAX];
+    char tmpname[PATH_MAX];
     const char *dn;
-    const devdir *dvd;
-    devdir tmpdevdirs[2];
+    static const devdir *dvd;
+    const devdir *dvp;
+    int tmpdevdirsindex = 0;
+    static devdir tmpdevdirs[MAX_TAPES + 1];
     struct stat statbuf;
 
     for (found=0; found < NBR_MODES; found++) {
@@ -574,20 +591,30 @@ find_devfiles(int tapeno, char **names)
 	non_rew[found] = FALSE;
     }
 
-    dvd = devdirs;
-    strcpy(tmpname, DEVFS_PATH);
-    if (!stat(tmpname, &statbuf)) {
-	if (S_ISDIR(statbuf.st_mode)) {  /* Assume devfs, one directory for each tape */
-	    sprintf(devname, DEVFS_TAPEFMT, tapeno);
-	    tmpdevdirs[0].dir = devname;
-	    tmpdevdirs[0].selective_scan = FALSE;
-	    tmpdevdirs[1].dir = NULL;
+    if (dvd == NULL && !stat(DEVFS_PATH, &statbuf)) {
+	if (S_ISDIR(statbuf.st_mode) && (dirp=opendir(DEVFS_PATH)) != NULL) {
+	    /* Assume devfs, one directory for each tape */
+	    for ( ; (dent = readdir(dirp)) != NULL; ) {
+		if (!strcmp (dent->d_name, ".")
+		    || !strcmp (dent->d_name, ".."))
+		    continue;
+		snprintf(tmpdevdirs[tmpdevdirsindex].dir,
+			 sizeof(tmpdevdirs[tmpdevdirsindex].dir),
+			 "%s/%s", DEVFS_PATH, dent->d_name);
+		tmpdevdirs[tmpdevdirsindex].selective_scan = FALSE;
+		if (++tmpdevdirsindex == MAX_TAPES)
+		    break;
+	    }
+	    tmpdevdirs[tmpdevdirsindex].dir[0] = 0;
+	    closedir(dirp);
 	    dvd = &tmpdevdirs[0];
 	}
     }
+    if (dvd == NULL)
+	dvd = devdirs;
 
-    for (found=0; found < NBR_MODES && dvd->dir != NULL; dvd++) {
-	dn = dvd->dir;
+    for (found=0, dvp=dvd; found < NBR_MODES && dvp->dir[0] != 0; dvp++) {
+	dn = dvp->dir;
 	if ((dirp = opendir(dn)) == NULL)
 	    continue;
 
@@ -595,7 +622,7 @@ find_devfiles(int tapeno, char **names)
 	    if (!strcmp (dent->d_name, ".") || !strcmp (dent->d_name, ".."))
 		continue;
 	    /* Ignore non-tape devices to avoid loading all the modules */
-	    if (dvd->selective_scan && !accept_tape_name(dent->d_name))
+	    if (dvp->selective_scan && !accept_tape_name(dent->d_name))
 		continue;
 	    strcpy(tmpname, dn);
 	    strcat(tmpname, "/");
@@ -777,7 +804,9 @@ define_tape(int tapeno, FILE *dbf, devdef_tr *defptr, int print_non_found)
 
     if (!find_devfiles(tapeno, fnames) ||
 	*fnames[0] == '\0') {
-	fprintf(stderr, "Can't find any device files for tape %d.\n", tapeno);
+	if (print_non_found)
+	    fprintf(stderr, "Can't find any device files for tape %d.\n",
+		    tapeno);
 	free(fnames[0]);
 	return FALSE;
     }

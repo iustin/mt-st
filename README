@@ -1,10 +1,11 @@
 This directory contains two programs; mt and stinit. Mt is basically
 a "standard" mt with additional commands to send the ioctls specific
-to the Linux SCSI tape driver. The source supports all ioctls up to
-kernel version 2.4.0 but it can also be compiled in kernels >= 2.0.x
-(and hopefully with 1.2.x). Although this mt program is tailored for
-SCSI tapes, it can also be used with other Linux tape drivers using the
-same ioctls (some of the commands may not work with all drivers).
+to the Linux SCSI tape driver. The source supports all SCSI tape
+ioctls up to kernel version 2.6.0 but it can also be compiled in
+kernels >= 2.0.x (and hopefully with 1.2.x). Although this mt program
+is tailored for SCSI tapes, it can also be used with other Linux tape
+drivers using the same ioctls (some of the commands may not work with
+all drivers).
 
 Stinit is a program to initialize the tape drive characteristics. The
 current version should be considered alpha. See README.stinit for more
@@ -27,6 +28,12 @@ Installation:
 - review the makefile
 - make
 - make install
+
+Changes in version 0.8:
+- put man page into /usr/share/man/man1
+- documentation cleanup
+- add some density translations
+- counts can use the k, M, or G postfix
 
 Changes in version 0.7:
 - add command eject for compatibility with GNU mt (synonym for offline
@@ -80,4 +87,4 @@ Changes in version 0.3:
   by the command compression using a new ioctl)
 - bus fixes
 
-November 8, 2001  Kai Makisara (email Kai.Makisara@metla.fi)
+April 13, 2004  Kai Makisara (email Kai.Makisara@kolumbus.fi)

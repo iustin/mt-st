@@ -31,6 +31,12 @@ stinit.def.examples - a file containing example definitions for
 Makefile            - a sample makefile for the program
 README.stinit       - this file
 
+Changes in version 0.8:
+- in devfs, /dev/tapes/tape<n> does not match <n>th drive after rmmoding
+  and insmodding the st driver; fix provided by Philippe Troin
+- put the man page into /usr/share/man/man8
+- counts can use the k, M, or G postfix
+
 Changes in version 0.7:
 - the directory scanning for tape devices is restricted to files with
   certain names in some directories to avoid triggering automatic
@@ -47,5 +53,5 @@ Changes in version 0.6:
 
 Initial version 0.5.
 
-November 8, 2001  Kai Mäkisara <Kai.Makisara@metla.fi>
+April 13, 2004  Kai Mäkisara <Kai.Makisara@kolumbus.fi>
 

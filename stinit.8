@@ -1,4 +1,4 @@
-.TH STINIT 8 "November 2001" \" -*- nroff -*-
+.TH STINIT 8 "April 2004" \" -*- nroff -*-
 .SH NAME
 stinit \- initialize SCSI magnetic tape drives
 .SH SYNOPSIS
@@ -13,7 +13,7 @@ to the SCSI subsystem at run-time. The initialization is performed by
 sending ioctl commands to the drive. The commands are defined in a
 text file that is indexed using the inquiry data the drive returns
 (manufacturer, device, revision). Values for all of the general and
-mode-specific SCSI tape parameters up to Linux version 2.4.15 can be
+mode-specific SCSI tape parameters up to Linux version 2.6.0 can be
 initialized.
 .PP
 .SH OPTIONS
@@ -87,7 +87,13 @@ parameter definition block.
 The drive descriptions and the parameter definitions consist of pairs
 .I name = value.
 The value is either a numeric parameter, a string not containing
-blanks, or a quoted string. If the
+blanks, or a quoted string. In case of a numeric parameter, the
+postfix
+.I k
+or
+.I M
+can be used to give the value in units of 1024 or 1024 * 1024,
+respectively. If the
 .I =value
 -part is omitted, the value
 .I
@@ -108,7 +114,7 @@ can-bsr can-partitions auto-lock
 mode1 blocksize=0 compression=1
 mode2 blocksize=1024 compression=1
 mode3 blocksize=0 compression=0
-mode4 blocksize = 1024 compression=0 }
+mode4 blocksize = 1k compression=0 }
 .fi
 .RE
 .PP
@@ -235,11 +241,15 @@ are forced when writing starts at the beginning of a tape if
 is non-zero. The default is to change there parameters each time the
 device is opened at the beginning of a tape (or the mode is changed in
 the middle of a tape).
-.IP timeout
+.IP sysv=value
+The System V tape semantics are used if
+.I value
+is non-zero. Otherwise the BSD semantics are used.
+.IP timeout=value
 The normal timeout for the device is set to
 .I value
 seconds.
-.IP long-time[out]
+.IP long-time[out]=value
 The long timeout for the device is set to
 .I value
 seconds.
@@ -254,9 +264,9 @@ With the exception of the -p option, the program can be used only by
 the superuser. This is because the program uses ioctls allowed only
 for the superuser.
 .SH AUTHOR
-The program is written by Kai Makisara <Kai.Makisara@metla.fi>.
+The program is written by Kai Makisara <Kai.Makisara@kolumbus.fi>.
 .SH COPYRIGHT
-The program and the manual page are copyrighted by Kai Makisara, 1998-2001.
+The program and the manual page are copyrighted by Kai Makisara, 1998-2004.
 They can be distributed according to the GNU Copyleft.
 .SH SEE ALSO
 st(4) mt(1)
