@@ -1,11 +1,11 @@
 /* This program initializes Linux SCSI tape drives using the
    inquiry data from the devices and a text database.
 
-   Copyright 1996-2004 by Kai Mäkisara (email Kai.Makisara@kolumbus.fi)
+   Copyright 1996-2005 by Kai Mäkisara (email Kai.Makisara@kolumbus.fi)
    Distribution of this program is allowed according to the
    GNU Public Licence.
 
-   Last modified: Tue Apr 13 21:26:42 2004 by makisara
+   Last modified: Sun Aug 21 21:47:51 2005 by kai.makisara
 */
 
 #include <stdio.h>
@@ -20,6 +20,7 @@
 #include <sys/ioctl.h>
 #include <sys/sysmacros.h>
 #include <linux/major.h>
+#include <scsi/sg.h>
 
 #include "mtio.h"
 
@@ -29,7 +30,7 @@
 #endif
 #define SKIP_WHITE(p) for ( ; *p == ' ' || *p == '\t'; p++)
 
-#define VERSION "0.8"
+#define VERSION "0.9b"
 
 typedef struct _modepar_tr {
     int defined;
@@ -444,7 +445,22 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs,
 }
 
 
+static int sg_io_errcheck(struct sg_io_hdr *hdp)
+{
+    int status;
+
+    status = hdp->status & 0x7e;
+    if ((hdp->status & 0x7e) == 0 || hdp->host_status == 0 ||
+	hdp->driver_status == 0)
+	return 0;
+    return EIO;
+}
+
+
 #define INQUIRY 0x12
+#define INQUIRY_CMDLEN  6
+#define SENSE_BUFF_LEN 32
+#define DEF_TIMEOUT 60000
 
 #ifndef SCSI_IOCTL_SEND_COMMAND
 #define SCSI_IOCTL_SEND_COMMAND 1
@@ -457,7 +473,10 @@ do_inquiry(char *tname, char *company, char *product, char *rev, int print_non_f
     int fn;
     int result, *ip, i;
 #define BUFLEN 256
-    unsigned char buffer[BUFLEN], *cmd;
+    unsigned char buffer[BUFLEN], *cmd, *inqptr;
+    struct sg_io_hdr io_hdr;
+    unsigned char inqCmdBlk[INQUIRY_CMDLEN] = {INQUIRY, 0, 0, 0, 200, 0};
+    unsigned char sense_b[SENSE_BUFF_LEN];
 
     if ((fn = open(tname, O_RDONLY | O_NONBLOCK)) < 0) {
 	if (print_non_found || verbose > 0) {
@@ -470,34 +489,55 @@ do_inquiry(char *tname, char *company, char *product, char *rev, int print_non_f
 	return FALSE;
     }
 
-    memset(buffer, 0, BUFLEN);
-    ip = (int *)&(buffer[0]);
-    *ip = 0;
-    *(ip+1) = BUFLEN - 13;
+    /* Try SG_IO first, if it is not supported, use SCSI_IOCTL_SEND_COMMAND */
+    memset(&io_hdr, 0, sizeof(struct sg_io_hdr));
+    io_hdr.interface_id = 'S';
+    io_hdr.cmd_len = sizeof(inqCmdBlk);
+    io_hdr.mx_sb_len = sizeof(sense_b);
+    io_hdr.dxfer_direction = SG_DXFER_FROM_DEV;
+    io_hdr.dxfer_len = 200;
+    io_hdr.dxferp = buffer;
+    io_hdr.cmdp = inqCmdBlk;
+    io_hdr.sbp = sense_b;
+    io_hdr.timeout = DEF_TIMEOUT;
+    inqptr = buffer;
 
-    cmd = &(buffer[8]);
-    cmd[0] = INQUIRY;
-    cmd[4] = 200;
-
-    result = ioctl(fn, SCSI_IOCTL_SEND_COMMAND, buffer);
+    result = ioctl(fn, SG_IO, &io_hdr);
+    if (!result)
+	result = sg_io_errcheck(&io_hdr);
     if (result) {
-	close(fn);
-	sprintf(buffer,
-		"The SCSI INQUIRY for device '%s' failed (power off?)",
-		tname);
-	perror(buffer);
-	return FALSE;
+	if (errno == ENOTTY || errno == EINVAL) {
+	    memset(buffer, 0, BUFLEN);
+	    ip = (int *)&(buffer[0]);
+	    *ip = 0;
+	    *(ip+1) = BUFLEN - 13;
+
+	    cmd = &(buffer[8]);
+	    cmd[0] = INQUIRY;
+	    cmd[4] = 200;
+
+	    result = ioctl(fn, SCSI_IOCTL_SEND_COMMAND, buffer);
+	    inqptr = buffer + IOCTL_HEADER_LENGTH;
+	}
+	if (result) {
+	    close(fn);
+	    sprintf(buffer,
+		    "The SCSI INQUIRY for device '%s' failed (power off?)",
+		    tname);
+	    perror(buffer);
+	    return FALSE;
+	}
     }
 
-    memcpy(company, buffer + IOCTL_HEADER_LENGTH + 8, 8);
+    memcpy(company, inqptr + 8, 8);
     for (i=8; i > 0 && company[i-1] == ' '; i--)
 	;
     company[i] = '\0';
-    memcpy(product, buffer + IOCTL_HEADER_LENGTH + 16, 16);
+    memcpy(product, inqptr + 16, 16);
     for (i=16; i > 0 && product[i-1] == ' '; i--)
 	;
     product[i] = '\0';
-    memcpy(rev, buffer + IOCTL_HEADER_LENGTH + 32, 4);
+    memcpy(rev, inqptr + 32, 4);
     for (i=4; i > 0 && rev[i-1] == ' '; i--)
 	;
     rev[i] = '\0';

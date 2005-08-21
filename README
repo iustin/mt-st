@@ -29,6 +29,12 @@ Installation:
 - make
 - make install
 
+Changes in version 0.9b:
+- only stinit changed
+
+Changes in version 0.9:
+- more density codes
+
 Changes in version 0.8:
 - put man page into /usr/share/man/man1
 - documentation cleanup
@@ -87,4 +93,4 @@ Changes in version 0.3:
   by the command compression using a new ioctl)
 - bus fixes
 
-April 13, 2004  Kai Makisara (email Kai.Makisara@kolumbus.fi)
+May 29, 2005  Kai Makisara (email Kai.Makisara@kolumbus.fi)

@@ -5,10 +5,10 @@
 	tape drive.
 
 	Maintained by Kai Mäkisara (email Kai.Makisara@kolumbus.fi)
-	Copyright by Kai Mäkisara, 1998 - 2004. The program may be distributed
+	Copyright by Kai Mäkisara, 1998 - 2005. The program may be distributed
 	according to the GNU Public License
 
-	Last Modified: Tue Apr 13 21:26:24 2004 by makisara
+	Last Modified: Sun Aug 21 21:48:06 2005 by kai.makisara
 */
 
 #include <stdio.h>
@@ -27,7 +27,7 @@
 #define DEFTAPE "/dev/tape"     /* default tape device */
 #endif /* DEFTAPE */
 
-#define VERSION "0.8"
+#define VERSION "0.9b"
 
 typedef int (* cmdfunc)(/* int, struct cmdef_tr *, int, char ** */);
 
@@ -214,7 +214,8 @@ static struct densities {
     {0x33, "SLR6"},
     {0x34, "SLR100"},
     {0x40, "DLT1 40 GB, or Ultrium"},
-    {0x41, "DLT 40GB"},
+    {0x41, "DLT 40GB, or Ultrium2"},
+    {0x42, "LTO-2"},
     {0x45, "QIC-3095-MC (TR-4)"},
     {0x47, "TR-5"},
     {0x80, "DLT 15GB uncomp. or Ecrix"},
