@@ -1,11 +1,11 @@
 /* This program initializes Linux SCSI tape drives using the
    inquiry data from the devices and a text database.
 
-   Copyright 1996-2005 by Kai Mäkisara (email Kai.Makisara@kolumbus.fi)
+   Copyright 1996-2008 by Kai Mäkisara (email Kai.Makisara@kolumbus.fi)
    Distribution of this program is allowed according to the
    GNU Public Licence.
 
-   Last modified: Sun Aug 21 21:47:51 2005 by kai.makisara
+   Last modified: Sun Apr 27 14:24:16 2008 by kai.makisara
 */
 
 #include <stdio.h>
@@ -30,7 +30,7 @@
 #endif
 #define SKIP_WHITE(p) for ( ; *p == ' ' || *p == '\t'; p++)
 
-#define VERSION "0.9b"
+#define VERSION "1.1"
 
 typedef struct _modepar_tr {
     int defined;
@@ -58,6 +58,7 @@ typedef struct _devdef_tr {
     int long_timeout;
     int cleaning;
     int nowait;
+    int sili;
     modepar_tr modedefs[4];
 } devdef_tr;
 
@@ -265,6 +266,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs,
     defs->long_timeout = (-1);
     defs->cleaning = (-1);
     defs->nowait = (-1);
+    defs->sili = (-1);
     for (i=0; i < NBR_MODES; i++) {
 	defs->modedefs[i].defined = FALSE;
 	defs->modedefs[i].blocksize = (-1);
@@ -370,6 +372,8 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs,
 		defs->cleaning = num_arg(t);
 	    if ((t = find_string(defstr, "no-w", line, LINEMAX)) != NULL)
 		defs->nowait = num_arg(t);
+	    if ((t = find_string(defstr, "sili", line, LINEMAX)) != NULL)
+		defs->sili = num_arg(t);
 
 	    defs->modedefs[mode].defined = TRUE;
 	    if ((t = find_string(defstr, "block", line, LINEMAX)) != NULL)
@@ -521,10 +525,10 @@ do_inquiry(char *tname, char *company, char *product, char *rev, int print_non_f
 	}
 	if (result) {
 	    close(fn);
-	    sprintf(buffer,
+	    sprintf((char *)buffer,
 		    "The SCSI INQUIRY for device '%s' failed (power off?)",
 		    tname);
-	    perror(buffer);
+	    perror((char *)buffer);
 	    return FALSE;
 	}
     }
@@ -570,7 +574,7 @@ tapenum(char *name)
 	return dev;
     }
     else { /* Search from the device directories */
-	for (dvd=devdirs; dvd->dir != NULL; dvd++) {
+	for (dvd=devdirs; dvd->dir[0] != 0; dvd++) {
 	    dn = dvd->dir;
 	    if ((dirp = opendir(dn)) == NULL)
 	      continue;
@@ -758,6 +762,8 @@ set_defs(devdef_tr *defs, char **fnames)
 	clear_set[0] = clear_set[1] = 0;
 	if (defs->nowait >= 0)
 	    clear_set[defs->nowait != 0] |= MT_ST_NOWAIT;
+	if (defs->sili >= 0)
+	    clear_set[defs->sili != 0] |= MT_ST_SILI;
 	if (defs->modedefs[i].buffer_writes >= 0)
 	    clear_set[defs->modedefs[i].buffer_writes != 0] |= MT_ST_BUFFER_WRITES;
 	if (defs->modedefs[i].async_writes >= 0)
@@ -852,7 +858,7 @@ define_tape(int tapeno, FILE *dbf, devdef_tr *defptr, int print_non_found)
     }
     if (verbose > 1)
 	for (i=0; i < NBR_MODES; i++)
-	    printf("Mode %d, name '%s'\n", i, fnames[i]);
+	    printf("Mode %d, name '%s'\n", i + 1, fnames[i]);
 
     tname = fnames[0];
     if (!do_inquiry(tname, company, product, rev, print_non_found)) {

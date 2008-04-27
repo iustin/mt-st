@@ -34,6 +34,10 @@ stinit.def.examples - a file containing example definitions for
 Makefile            - a sample makefile for the program
 README.stinit       - this file
 
+Changes in version 1.1:
+- fix mode number printing in verbose mode (from Martin Jacobs)
+- add support for the sili option
+
 Changes in version 0.9b:
 - fix back out to SCSI_IOCTL_SEND_COMMAND for 2.4 kernels (2.4 uses errno
   EINVAL for unsupported ioctls)
@@ -64,5 +68,5 @@ Changes in version 0.6:
 
 Initial version 0.5.
 
-May 29, 2005  Kai Mäkisara <Kai.Makisara@kolumbus.fi>
+April 27, 2008  Kai Mäkisara <Kai.Makisara@kolumbus.fi>
 

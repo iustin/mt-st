@@ -5,10 +5,10 @@
 	tape drive.
 
 	Maintained by Kai Mäkisara (email Kai.Makisara@kolumbus.fi)
-	Copyright by Kai Mäkisara, 1998 - 2005. The program may be distributed
+	Copyright by Kai Mäkisara, 1998 - 2008. The program may be distributed
 	according to the GNU Public License
 
-	Last Modified: Sun Aug 21 21:48:06 2005 by kai.makisara
+	Last Modified: Sun Apr 27 19:49:00 2008 by kai.makisara
 */
 
 #include <stdio.h>
@@ -20,6 +20,8 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/utsname.h>
 
 #include "mtio.h"
 
@@ -27,7 +29,7 @@
 #define DEFTAPE "/dev/tape"     /* default tape device */
 #endif /* DEFTAPE */
 
-#define VERSION "0.9b"
+#define VERSION "1.1"
 
 typedef int (* cmdfunc)(/* int, struct cmdef_tr *, int, char ** */);
 
@@ -66,6 +68,7 @@ static int do_partseek(int, cmdef_tr *, int, char **);
 static int do_status(int, cmdef_tr *, int, char **);
 static int print_densities(int, cmdef_tr *, int, char **);
 static int do_asf(int, cmdef_tr *, int, char **);
+static int do_show_options(int, cmdef_tr *, int, char **);
 static void test_error(int, cmdef_tr *);
 
 static cmdef_tr cmds[] = {
@@ -159,6 +162,8 @@ static cmdef_tr cmds[] = {
     ET_ONLINE },
     { "asf",		0,         do_asf, MTREW,  FD_RDONLY, ONE_ARG,
     ET_ONLINE },
+    { "stshowopt",	0,         do_show_options, 0,  FD_RDONLY, ONE_ARG,
+    0 },
     { NULL, 0, 0, 0 }
 };
 
@@ -210,14 +215,18 @@ static struct densities {
     {0x29, "QIC-3080MC"},
     {0x30, "AIT-1 or MLR3"},
     {0x31, "AIT-2"},
-    {0x32, "AIT-3"},
+    {0x32, "AIT-3 or SLR7"},
     {0x33, "SLR6"},
     {0x34, "SLR100"},
     {0x40, "DLT1 40 GB, or Ultrium"},
     {0x41, "DLT 40GB, or Ultrium2"},
     {0x42, "LTO-2"},
+    {0x44, "LTO-3"},
     {0x45, "QIC-3095-MC (TR-4)"},
-    {0x47, "TR-5"},
+    {0x46, "LTO-4"},
+    {0x47, "DDS-5 or TR-5"},
+    {0x51, "IBM 3592 J1A"},
+    {0x52, "IBM 3592 E05"},
     {0x80, "DLT 15GB uncomp. or Ecrix"},
     {0x81, "DLT 15GB compressed"},
     {0x82, "DLT 20GB uncompressed"},
@@ -258,6 +267,7 @@ static struct booleans {
 #ifdef MT_ST_SYSV
     {"sysv",	      MT_ST_SYSV,	   "enable the SystemV semantics"},
 #endif
+    {"sili",	      MT_ST_SILI,	   "enable SILI for variable block mode"},
     {"cleaning",      MT_ST_SET_CLN,	   "set the cleaning bit location and mask"},
     {NULL, 0}};
 
@@ -669,6 +679,72 @@ do_status(int mtfd, cmdef_tr *cmd, int argc, char **argv)
     if (GMT_CLN(status.mt_gstat))
 	printf(" CLN");
     printf("\n");
+    return 0;
+}
+
+
+/* From linux/drivers/scsi/st.[ch] */
+#define ST_NBR_MODE_BITS 2
+#define ST_NBR_MODES (1 << ST_NBR_MODE_BITS)
+#define ST_MODE_SHIFT (7 - ST_NBR_MODE_BITS)
+#define ST_MODE_MASK ((ST_NBR_MODES - 1) << ST_MODE_SHIFT)
+#define TAPE_NR(minor) ( (((minor) & ~255) >> (ST_NBR_MODE_BITS + 1)) | \
+    ((minor) & ~(-1 << ST_MODE_SHIFT)) )
+#define TAPE_MODE(minor) (((minor) & ST_MODE_MASK) >> ST_MODE_SHIFT)
+static const char *st_formats[] = {
+        "",  "r", "k", "s", "l", "t", "o", "u",
+        "m", "v", "p", "x", "a", "y", "q", "z"}; 
+
+/* Show the options if visible in sysfs */
+static int do_show_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
+{
+    int i, fd, options, tapeminor, tapeno, tapemode;
+    struct stat stat;
+    struct utsname uts;
+    char fname[100], buf[20];
+
+    if (uname(&uts) < 0) {
+	perror(tape_name);
+	return 2;
+    }
+    sscanf(uts.release, "%d.%d.%d", &i, &tapeno, &tapemode);
+    if (i < 2 || tapeno < 6 || tapemode < 26)
+	printf("Your kernel (%d.%d.%d) may be too old for this command.\n",
+	       i, tapeno, tapemode);
+
+    if (fstat(mtfd, &stat) < 0) {
+	perror(tape_name);
+	return 1;
+    }
+
+    if (!(stat.st_mode & S_IFCHR)) {
+	fprintf(stderr, "mt: not a character device.\n");
+	return 1;
+    }
+
+    tapeminor = minor(stat.st_rdev);
+    tapeno = TAPE_NR(tapeminor);
+    tapemode = TAPE_MODE(tapeminor);
+    tapemode <<= 4 - ST_NBR_MODE_BITS;  /* from st.c */
+    sprintf(fname, "/sys/class/scsi_tape/st%d%s/options", tapeno,
+	    st_formats[tapemode]);
+    /* printf("Trying file '%s' (st_rdev 0x%lx).\n", fname, stat.st_rdev); */
+
+    if ((fd = open(fname, O_RDONLY)) < 0 ||
+	read(fd, buf, 20) < 0) {
+	fprintf(stderr, "Can't read the sysfs file '%s'.\n", fname);
+	return 2;
+    }
+    close(fd);
+
+    options = strtol(buf, NULL, 0);
+
+    printf("The options set:");
+    for (i=0; boolean_tbl[i].name != NULL; i++)
+	if (options & boolean_tbl[i].bitmask)
+	    printf(" %s", boolean_tbl[i].name);
+    printf("\n");
+
     return 0;
 }
 

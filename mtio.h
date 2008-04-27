@@ -1,8 +1,9 @@
 /* 
  * linux/mtio.h header file for Linux. Written by H. Bergman
  *
- * Modified for special ioctls provided by zftape in September 1997
- * by C.-J. Heine.
+ * Sanitized version for mt/stinit (definitions not used by these
+ * programs have been removed) 7 Oct 2007/Kai Mäkisara
+ *
  */
 
 #ifndef _LINUX_MTIO_H
@@ -10,7 +11,6 @@
 
 #include <linux/types.h>
 #include <linux/ioctl.h>
-#include <linux/qic117.h>
 
 /*
  * Structures and definitions for mag tape io control commands
@@ -110,176 +110,11 @@ struct	mtget {
 #define MT_ISSCSI1		0x71	/* Generic ANSI SCSI-1 tape unit */
 #define MT_ISSCSI2		0x72	/* Generic ANSI SCSI-2 tape unit */
 
-/* QIC-40/80/3010/3020 ftape supported drives.
- * 20bit vendor ID + 0x800000 (see ftape-vendors.h)
- */
-#define MT_ISFTAPE_UNKNOWN	0x800000 /* obsolete */
-#define MT_ISFTAPE_FLAG	0x800000
-
-struct mt_tape_info {
-	long t_type;		/* device type id (mt_type) */
-	char *t_name;		/* descriptive name */
-};
-
-#define MT_TAPE_INFO	{ \
-	{MT_ISUNKNOWN,		"Unknown type of tape device"}, \
-	{MT_ISQIC02,		"Generic QIC-02 tape streamer"}, \
-	{MT_ISWT5150,		"Wangtek 5150, QIC-150"}, \
-	{MT_ISARCHIVE_5945L2,	"Archive 5945L-2"}, \
-	{MT_ISCMSJ500,		"CMS Jumbo 500"}, \
-	{MT_ISTDC3610,		"Tandberg TDC 3610, QIC-24"}, \
-	{MT_ISARCHIVE_VP60I,	"Archive VP60i, QIC-02"}, \
-	{MT_ISARCHIVE_2150L,	"Archive Viper 2150L"}, \
-	{MT_ISARCHIVE_2060L,	"Archive Viper 2060L"}, \
-	{MT_ISARCHIVESC499,	"Archive SC-499 QIC-36 controller"}, \
-	{MT_ISQIC02_ALL_FEATURES, "Generic QIC-02 tape, all features"}, \
-	{MT_ISWT5099EEN24,	"Wangtek 5099-een24, 60MB"}, \
-	{MT_ISTEAC_MT2ST,	"Teac MT-2ST 155mb data cassette drive"}, \
-	{MT_ISEVEREX_FT40A,	"Everex FT40A, QIC-40"}, \
-	{MT_ISONSTREAM_SC,      "OnStream SC-, DI-, DP-, or USB tape drive"}, \
-	{MT_ISSCSI1,		"Generic SCSI-1 tape"}, \
-	{MT_ISSCSI2,		"Generic SCSI-2 tape"}, \
-	{0, NULL} \
-}
-
 
 /* structure for MTIOCPOS - mag tape get position command */
 
 struct	mtpos {
 	long 	mt_blkno;	/* current block number */
-};
-
-
-/* structure for MTIOCGETCONFIG/MTIOCSETCONFIG primarily intended
- * as an interim solution for QIC-02 until DDI is fully implemented.
- */
-struct mtconfiginfo {
-	long	mt_type;	/* drive type */
-	long	ifc_type;	/* interface card type */
-	unsigned short	irqnr;	/* IRQ number to use */
-	unsigned short	dmanr;	/* DMA channel to use */
-	unsigned short	port;	/* IO port base address */
-
-	unsigned long	debug;	/* debugging flags */
-
-	unsigned	have_dens:1;
-	unsigned	have_bsf:1;
-	unsigned	have_fsr:1;
-	unsigned	have_bsr:1;
-	unsigned	have_eod:1;
-	unsigned	have_seek:1;
-	unsigned	have_tell:1;
-	unsigned	have_ras1:1;
-	unsigned	have_ras2:1;
-	unsigned	have_ras3:1;
-	unsigned	have_qfa:1;
-
-	unsigned	pad1:5;
-	char		reserved[10];
-};
-
-/*  structure for MTIOCVOLINFO, query information about the volume
- *  currently positioned at (zftape)
- */
-struct mtvolinfo {
-	unsigned int mt_volno;   /* vol-number */
-	unsigned int mt_blksz;   /* blocksize used when recording */
-	unsigned int mt_rawsize; /* raw tape space consumed, in kb */
-	unsigned int mt_size;    /* volume size after decompression, in kb */
-	unsigned int mt_cmpr:1;  /* this volume has been compressed */
-};
-
-/* raw access to a floppy drive, read and write an arbitrary segment.
- * For ftape/zftape to support formatting etc.
- */
-#define MT_FT_RD_SINGLE  0
-#define MT_FT_RD_AHEAD   1
-#define MT_FT_WR_ASYNC   0 /* start tape only when all buffers are full     */
-#define MT_FT_WR_MULTI   1 /* start tape, continue until buffers are empty  */
-#define MT_FT_WR_SINGLE  2 /* write a single segment and stop afterwards    */
-#define MT_FT_WR_DELETE  3 /* write deleted data marks, one segment at time */
-
-struct mtftseg
-{            
-	unsigned mt_segno;   /* the segment to read or write */
-	unsigned mt_mode;    /* modes for read/write (sync/async etc.) */
-	int      mt_result;  /* result of r/w request, not of the ioctl */
-	void    *mt_data;    /* User space buffer: must be 29kb */
-};
-
-/* get tape capacity (ftape/zftape)
- */
-struct mttapesize {
-	unsigned long mt_capacity; /* entire, uncompressed capacity 
-				    * of a cartridge
-				    */
-	unsigned long mt_used;     /* what has been used so far, raw 
-				    * uncompressed amount
-				    */
-};
-
-/*  possible values of the ftfmt_op field
- */
-#define FTFMT_SET_PARMS		1 /* set software parms */
-#define FTFMT_GET_PARMS		2 /* get software parms */
-#define FTFMT_FORMAT_TRACK	3 /* start formatting a tape track   */
-#define FTFMT_STATUS		4 /* monitor formatting a tape track */
-#define FTFMT_VERIFY		5 /* verify the given segment        */
-
-struct ftfmtparms {
-	unsigned char  ft_qicstd;   /* QIC-40/QIC-80/QIC-3010/QIC-3020 */
-	unsigned char  ft_fmtcode;  /* Refer to the QIC specs */
-	unsigned char  ft_fhm;      /* floppy head max */
-	unsigned char  ft_ftm;      /* floppy track max */
-	unsigned short ft_spt;      /* segments per track */
-	unsigned short ft_tpc;      /* tracks per cartridge */
-};
-
-struct ftfmttrack {
-	unsigned int  ft_track;   /* track to format */
-	unsigned char ft_gap3;    /* size of gap3, for FORMAT_TRK */
-};
-
-struct ftfmtstatus {
-	unsigned int  ft_segment;  /* segment currently being formatted */
-};
-
-struct ftfmtverify {
-	unsigned int  ft_segment;   /* segment to verify */
-	unsigned long ft_bsm;       /* bsm as result of VERIFY cmd */
-};
-
-struct mtftformat {
-	unsigned int fmt_op;      /* operation to perform */
-	union fmt_arg {
-		struct ftfmtparms  fmt_parms;  /* format parameters */
-		struct ftfmttrack  fmt_track;  /* ctrl while formatting */
-		struct ftfmtstatus fmt_status;
-		struct ftfmtverify fmt_verify; /* for verifying */ 
-	} fmt_arg;
-};
-
-struct mtftcmd {
-	unsigned int ft_wait_before; /* timeout to wait for drive to get ready 
-				      * before command is sent. Milliseconds
-				      */
-	qic117_cmd_t ft_cmd;         /* command to send */
-	unsigned char ft_parm_cnt;   /* zero: no parm is sent. */
-	unsigned char ft_parms[3];   /* parameter(s) to send to
-				      * the drive. The parms are nibbles
-				      * driver sends cmd + 2 step pulses */
-	unsigned int ft_result_bits; /* if non zero, number of bits
-				      *	returned by the tape drive
-				      */
-	unsigned int ft_result;      /* the result returned by the tape drive*/
-	unsigned int ft_wait_after;  /* timeout to wait for drive to get ready
-				      * after command is sent. 0: don't wait */
-	int ft_status;	             /* status returned by ready wait
-				      * undefined if timeout was 0.
-				      */
-	int ft_error;                /* error code if error status was set by 
-				      * command
-				      */
 };
 
 /* mag tape io control commands */
@@ -366,6 +201,7 @@ struct mtftcmd {
 #define MT_ST_SCSI2LOGICAL      0x800
 #define MT_ST_SYSV              0x1000
 #define MT_ST_NOWAIT            0x2000
+#define MT_ST_SILI		0x4000
 
 /* The mode parameters to be controlled. Parameter chosen with bits 20-28 */
 #define MT_ST_CLEAR_DEFAULT	0xfffff

@@ -29,6 +29,12 @@ Installation:
 - make
 - make install
 
+Changes in version 1.1:
+- unused defines removed from mtio.h (compiles also with distributions no
+  having linux/qic117.h)
+- add support for MT_ST_SILI to mt and stinit
+- add command showoptions for kernels >= 2.6.26
+
 Changes in version 0.9b:
 - only stinit changed
 
@@ -93,4 +99,4 @@ Changes in version 0.3:
   by the command compression using a new ioctl)
 - bus fixes
 
-May 29, 2005  Kai Makisara (email Kai.Makisara@kolumbus.fi)
+April 27, 2008  Kai Makisara (email Kai.Makisara@kolumbus.fi)
