@@ -164,7 +164,7 @@ find_string(char *s, char *target, char *buf, int buflen)
 		if (buf == NULL)
 		    buf = strdup(argp);
 		else {
-		    if (strlen(argp) < buflen)
+		    if (strlen(argp) < (unsigned int)buflen)
 			strcpy(buf, argp);
 		    else {
 			strncpy(buf, argp, buflen);

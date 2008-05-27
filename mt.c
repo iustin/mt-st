@@ -164,7 +164,7 @@ static cmdef_tr cmds[] = {
     ET_ONLINE },
     { "stshowopt",	0,         do_show_options, 0,  FD_RDONLY, ONE_ARG,
     0 },
-    { NULL, 0, 0, 0 }
+    { NULL, 0, 0, 0, 0, 0, 0 }
 };
 
 
@@ -273,7 +273,8 @@ static struct booleans {
 #endif
     {"sili",	      MT_ST_SILI,	   "enable SILI for variable block mode"},
     {"cleaning",      MT_ST_SET_CLN,	   "set the cleaning bit location and mask"},
-    {NULL, 0}};
+    {NULL, 0, NULL}
+};
 
 static char *tape_name;   /* The tape name for messages */
 
@@ -281,7 +282,8 @@ static char *tape_name;   /* The tape name for messages */
 	int
 main(int argc, char **argv)
 {
-    int mtfd, cmd_code, i, argn, len, oflags;
+    int mtfd, cmd_code, i, argn, oflags;
+    unsigned int len;
     char *cmdstr;
     cmdef_tr *comp, *comp2;
 
@@ -487,7 +489,8 @@ do_drvbuffer(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 	static int
 do_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 {
-    int i, an, len;
+    int i, an;
+    unsigned int len;
     struct mtop mt_com;
 
     mt_com.mt_op = MTSETDRVBUFFER;
@@ -607,7 +610,8 @@ do_asf(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 do_status(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 {
     struct mtget status;
-    int dens, i;
+    int dens;
+    unsigned int i;
     char *type, *density;
 
     if (ioctl(mtfd, MTIOCGET, (char *)&status) < 0) {
@@ -766,7 +770,7 @@ static int do_show_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 	static int
 print_densities(int fd, cmdef_tr *cmd, int argc, char **argv)
 {
-    int i, offset;
+    unsigned int i, offset;
 
     printf("Some SCSI tape density codes:\ncode   explanation                   code   explanation\n");
     offset = (NBR_DENSITIES + 1) / 2;
