@@ -8,7 +8,7 @@
 	Copyright by Kai Mäkisara, 1998 - 2008. The program may be distributed
 	according to the GNU Public License
 
-	Last Modified: Sun Apr 27 19:49:00 2008 by kai.makisara
+	Last Modified: Mon Feb 16 19:55:20 2009 by kai.makisara
 */
 
 #include <stdio.h>
@@ -225,6 +225,10 @@ static struct densities {
     {0x45, "QIC-3095-MC (TR-4)"},
     {0x46, "LTO-4"},
     {0x47, "DDS-5 or TR-5"},
+    {0x48, "SDLT220"},
+    {0x49, "SDLT320"},
+    {0x4a, "SDLT600, T10000A"},
+    {0x4b, "T10000B"},
     {0x51, "IBM 3592 J1A"},
     {0x52, "IBM 3592 E05"},
     {0x80, "DLT 15GB uncomp. or Ecrix"},
