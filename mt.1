@@ -50,8 +50,9 @@ The tape is positioned on the first block of the next file.
 .IP fsfm
 Forward space
 .I count
-files.
-The tape is positioned on the last block of the previous file.
+files, then backward space one record. This leaves
+the tape positioned at the last block of the file that is count - 1 files
+past the current file.
 .IP bsf
 Backward space
 .I count
@@ -60,8 +61,9 @@ The tape is positioned on the last block of the previous file.
 .IP bsfm
 Backward space
 .I count
-files.
-The tape is positioned on the first block of the next file.
+files, then forward space one record. This leaves
+the tape positioned at the first block of the file that is count - 1 files
+before the current file.
 .IP asf
 The tape is positioned at the beginning of the
 .I count
