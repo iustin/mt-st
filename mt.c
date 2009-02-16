@@ -319,8 +319,17 @@ main(int argc, char **argv)
 	else
 	    break;
 
-    if (tape_name == NULL && (tape_name = getenv("TAPE")) == NULL)
+    if (tape_name == NULL && (tape_name = getenv("TAPE")) == NULL) {
+	struct stat stbuf;
+
 	tape_name = DEFTAPE;
+	if (!stat(tape_name, &stbuf) &&
+	    !S_ISCHR(stbuf.st_mode)) {
+	    fprintf(stderr, "The default '%s' is not a character device.\n\n", tape_name);
+	    usage(1);
+	    exit(1);
+	}
+    }
        
     if (argn >= argc ) {
 	usage(0);
