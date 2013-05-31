@@ -164,6 +164,8 @@ static cmdef_tr cmds[] = {
     ET_ONLINE },
     { "stshowopt",	0,         do_show_options, 0,  FD_RDONLY, ONE_ARG,
     0 },
+    { "stshowoptions",	0,         do_show_options, 0,  FD_RDONLY, ONE_ARG,
+    0 },
     { NULL, 0, 0, 0, 0, 0, 0 }
 };
 
