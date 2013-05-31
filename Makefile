@@ -1,4 +1,4 @@
-CFLAGS=  -Wall -O2
+#CFLAGS=  -Wall -O2
 SBINDIR= /sbin
 BINDIR=  /bin
 USRBINDIR= /usr/bin
@@ -9,10 +9,10 @@ MTDIR=$(BINDIR)
 all:	mt stinit
 
 mt:	mt.c
-	$(CC) $(CFLAGS) -o mt mt.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o mt mt.c
 
 stinit:	stinit.c
-	$(CC) $(CFLAGS) -o stinit stinit.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -o stinit stinit.c
 
 install: mt stinit
 	install -s mt $(MTDIR)
