@@ -886,7 +886,7 @@ define_tape(int tapeno, FILE *dbf, devdef_tr *defptr, int print_non_found)
 usage(int retval)
 {
     fprintf(stderr,
-	    "Usage: stinit [-h] [-v] [-f dbname] [-p] [drivename_or_number ...]\n");
+	    "Usage: stinit [-h] [-v] [--version] [-f dbname] [-p] [-r] [drivename_or_number ...]\n");
     exit(retval);
 }
 
