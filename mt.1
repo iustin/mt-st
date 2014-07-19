@@ -27,7 +27,9 @@ variable
 .B TAPE
 is set, it is used.  Otherwise, a default device defined in the file
 .I /usr/include/sys/mtio.h
-is used.
+is used (note that the actual path to
+.I mtio.h
+can vary per architecture and/or distribution).
 .PP
 Some operations optionally take an argument or repeat count, which can be given
 after the operation name and defaults to 1. The postfix
