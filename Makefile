@@ -9,10 +9,10 @@ MTDIR=$(BINDIR)
 all:	mt stinit
 
 mt:	mt.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o mt mt.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o mt mt.c
 
 stinit:	stinit.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o stinit stinit.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o stinit stinit.c
 
 install: mt stinit
 	install -s mt $(MTDIR)
