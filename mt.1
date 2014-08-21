@@ -13,23 +13,7 @@ performs the given
 which must be one of the tape operations listed below, on a tape
 drive. The commands can also be listed by running the program with the
 .I \-h
-option. The version of mt is printed with the
-.I \-v
-or
-.I \-\-version
-option. The path of the tape device on which to operate can be given with
-the
-.I \-f
-or
-.I \-t
-option.  If neither of those options is given, and the environment
-variable
-.B TAPE
-is set, it is used.  Otherwise, a default device defined in the file
-.I /usr/include/sys/mtio.h
-is used (note that the actual path to
-.I mtio.h
-can vary per architecture and/or distribution).
+option.
 .PP
 Some operations optionally take an argument or repeat count, which can be given
 after the operation name and defaults to 1. The postfix
@@ -279,6 +263,25 @@ set the cleaning request interpretation parameters.
 exits with a status of 0 if the operation succeeded, 1 if the
 operation or device name given was invalid, or 2 if the operation
 failed.
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Print a usage message on standard output and exit successfully.
+.TP
+.B \-v, \-\-version
+Print version of mt.
+.TP
+.B \-f, \-t
+The path of the tape device on  which to operate.
+If neither of those options is given,
+and the environment variable
+.B TAPE
+is set, it is used.
+Otherwise, a default device defined in the file
+.I /usr/include/sys/mtio.h
+is used (note that the actual path to
+.I mtio.h
+can vary per architecture and/or distribution).
 .SH AUTHOR
 The program is written by Kai Makisara <Kai.Makisara@kolumbus.fi>.
 .SH COPYRIGHT
