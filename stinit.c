@@ -148,7 +148,7 @@ find_string(char *s, char *target, char *buf, int buflen)
 		else
 		    for (cp2=cp+1; isalnum(*cp2) || *cp2 == '-'; cp2++)
 			;
-		if (cp2 == '\0')
+		if (*cp2 == '\0')
 		    return NULL;
 		have_arg = TRUE;
 		argp = cp;
