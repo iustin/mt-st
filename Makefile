@@ -1,4 +1,4 @@
-#CFLAGS=  -Wall -O2
+CFLAGS?=  -Wall -O2
 SBINDIR= /sbin
 BINDIR=  /bin
 USRBINDIR= /usr/bin
