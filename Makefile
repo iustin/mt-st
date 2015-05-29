@@ -6,15 +6,14 @@ MANDIR= /usr/share/man
 
 MTDIR=$(BINDIR)
 
-all:	mt stinit
+PROGS=mt stinit
 
-mt:	mt.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o mt mt.c
+all:	$(PROGS)
 
-stinit:	stinit.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o stinit stinit.c
+%: %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $<
 
-install: mt stinit
+install: $(PROGS)
 	install -s mt $(MTDIR)
 	install -c -m 444 mt.1 $(MANDIR)/man1
 	(if [ -f $(MANDIR)/man1/mt.1.gz ] ; then \
