@@ -284,7 +284,7 @@ static char *tape_name;   /* The tape name for messages */
 	int
 main(int argc, char **argv)
 {
-    int mtfd, cmd_code, i, argn, oflags;
+    int mtfd, i, argn, oflags;
     unsigned int len;
     char *cmdstr;
     cmdef_tr *comp, *comp2;
@@ -365,7 +365,6 @@ main(int argc, char **argv)
 		comp->cmd_name);
 	exit(1);
     }
-    cmd_code = comp->cmd_code;
 
     if (comp->cmd_fdtype != NO_FD) {
 	oflags = comp->cmd_fdtype == FD_RDONLY ? O_RDONLY : O_RDWR;
