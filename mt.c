@@ -235,6 +235,7 @@ static struct densities {
     {0x52, "IBM 3592 E05"},
     {0x58, "LTO-5"},
     {0x5a, "LTO-6"},
+    {0x5c, "LTO-7"},
     {0x80, "DLT 15GB uncomp. or Ecrix"},
     {0x81, "DLT 15GB compressed"},
     {0x82, "DLT 20GB uncompressed"},
