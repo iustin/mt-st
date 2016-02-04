@@ -1,8 +1,8 @@
 CFLAGS?=  -Wall -O2
-SBINDIR= /sbin
-BINDIR=  /bin
-USRBINDIR= /usr/bin
-MANDIR= /usr/share/man
+SBINDIR= $(DESTDIR)/sbin
+BINDIR=  $(DESTDIR)/bin
+USRBINDIR= $(DESTDIR)/usr/bin
+MANDIR= $(DESTDIR)/usr/share/man
 
 MTDIR=$(BINDIR)
 
@@ -14,6 +14,7 @@ all:	$(PROGS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $<
 
 install: $(PROGS)
+	install -d $(MTDIR) $(MANDIR) $(SBINDIR)
 	install -s mt $(MTDIR)
 	install -c -m 444 mt.1 $(MANDIR)/man1
 	(if [ -f $(MANDIR)/man1/mt.1.gz ] ; then \
