@@ -2,7 +2,7 @@
  * linux/mtio.h header file for Linux. Written by H. Bergman
  *
  * Sanitized version for mt/stinit (definitions not used by these
- * programs have been removed) 7 Oct 2007/Kai Mäkisara
+ * programs have been removed) 7 Oct 2007/Kai MÃ¤kisara
  *
  */
 

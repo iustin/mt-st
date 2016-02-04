@@ -4,8 +4,8 @@
 	supports several commands designed for use with the Linux SCSI
 	tape drive.
 
-	Maintained by Kai Mäkisara (email Kai.Makisara@kolumbus.fi)
-	Copyright by Kai Mäkisara, 1998 - 2008. The program may be distributed
+	Maintained by Kai MÃ¤kisara (email Kai.Makisara@kolumbus.fi)
+	Copyright by Kai MÃ¤kisara, 1998 - 2008. The program may be distributed
 	according to the GNU Public License
 
 	Last Modified: Mon Feb 16 19:55:20 2009 by kai.makisara
