@@ -23,14 +23,13 @@
 #include <scsi/sg.h>
 
 #include "mtio.h"
+#include "version.h"
 
 #ifndef FALSE
 #define TRUE 1
 #define FALSE 0
 #endif
 #define SKIP_WHITE(p) for ( ; *p == ' ' || *p == '\t'; p++)
-
-#define VERSION "1.1"
 
 typedef struct _modepar_tr {
     int defined;

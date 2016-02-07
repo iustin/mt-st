@@ -22,12 +22,11 @@
 #include <sys/utsname.h>
 
 #include "mtio.h"
+#include "version.h"
 
 #ifndef DEFTAPE
 #define DEFTAPE "/dev/tape"     /* default tape device */
 #endif /* DEFTAPE */
-
-#define VERSION "1.1"
 
 typedef int (* cmdfunc)(/* int, struct cmdef_tr *, int, char ** */);
 
