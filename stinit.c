@@ -1,11 +1,11 @@
 /* This program initializes Linux SCSI tape drives using the
    inquiry data from the devices and a text database.
 
-   Copyright 1996-2008 by Kai Mäkisara (email Kai.Makisara@kolumbus.fi)
+   Maintained by Iustin Pop (iustin@k1024.org).
+   Copyright 1996-2008 by Kai Mäkisara (Kai.Makisara@kolumbus.fi).
    Distribution of this program is allowed according to the
    GNU Public Licence.
 
-   Last modified: Sun Apr 27 14:24:16 2008 by kai.makisara
 */
 
 #include <stdio.h>

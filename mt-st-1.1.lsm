@@ -8,7 +8,7 @@ specific to  the Linux SCSI tape driver (up to kernel 2.6.26), and the program
 stinit to define the SCSI tape devices in system startup scripts.
 Keywords:       tape SCSI
 Author:         Kai.Makisara@kolumbus.fi (Kai Makisara)
-Maintained-by:  Kai.Makisara@kolumbus.fi (Kai Makisara)
+Maintained-by:  iustin@k1024.org (Iustin Pop)
 Primary-site:   ftp://ftp.ibiblio.org/pub/linux/system/backup
 		36  kB mt-st-1.1.tar.gz
 		0.7 kB mt-st-1.1.lsm

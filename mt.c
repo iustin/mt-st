@@ -4,11 +4,9 @@
 	supports several commands designed for use with the Linux SCSI
 	tape drive.
 
-	Maintained by Kai Mäkisara (email Kai.Makisara@kolumbus.fi)
+	Maintained by Iustin Pop (iustin@k1024.org).
 	Copyright by Kai Mäkisara, 1998 - 2008. The program may be distributed
-	according to the GNU Public License
-
-	Last Modified: Mon Feb 16 19:55:20 2009 by kai.makisara
+	according to the GNU Public License.
 */
 
 #include <stdio.h>
