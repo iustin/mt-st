@@ -62,6 +62,10 @@ distcheck: dist
 	cd "$$BASE/$(RELEASEDIR)" && \
 	make && ./mt --version && ./stinit --version && \
 	make dist
+
+release-tag:
+	git tag -s -m 'Release version $(VERSION).' mt-st-$(VERSION)
+
 clean:
 	rm -f *~ \#*\# *.o $(PROGS) version.h
 
