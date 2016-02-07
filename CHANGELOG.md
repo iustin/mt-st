@@ -1,5 +1,27 @@
 # Changelog
 
+## Changes in version 1.2 (unreleased)
+
+This a mostly a cleanup release after many years of no updates,
+integrating pending fixes and distribution patches from Debian and
+RedHat, and a change of maintainership:
+
+- many updates to density codes (SDLT, LTO 5,6 and 7, etc.) (various people)
+- multiple man page updates (various people)
+- improve default tape device handling in `mt`: check that it actually
+  is a character device, in order to show better error messages when
+  `/dev/tape` is a different type (e.g. directory when using `udev`)
+- small bug fix in stinit in parsing the input file (David Binderman)
+- improve build system by allowing easier customisation of build flags
+  and installation directory (via `DESTDIR`, not prefix) (Iustin Pop)
+- sanitise the source code to get rid of GCC warnings (Jan Christoph
+  Nordholz, Iustin Pop)
+- add `stshowoptions` alias to `stshowopt` (Ivo De Decker)
+- expand the provided `stinit.def.examples` file (Suggested by
+  Ralf-Peter Rohbeck)
+- improve the `--help` output of stinit (Dan Horák)
+- change of maintainership to Iustin Pop <iustin@k1024.org>
+
 ## Changes in version 1.1 (Sun, 27 Apr 2008)
 
 - unused defines removed from `mtio.h` (compiles also with
