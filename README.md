@@ -8,6 +8,9 @@ The project was authored and is copyright by Kai Mäkisara
 Iustin Pop (<iustin@k1024.org>). For copyright information, see the
 `COPYING` file.
 
+For more information, bug reports and the source code repository,
+please see the project homepage at <https://github.com/iustin/mt-st>.
+
 ## mt
 
 `mt` is basically a "standard" mt with additional commands to send the
