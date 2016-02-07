@@ -25,7 +25,7 @@ RedHat, and a change of maintainership:
 ## Changes in version 1.1 (Sun, 27 Apr 2008)
 
 - unused defines removed from `mtio.h` (compiles also with
-  distributions no having `linux/qic117.h`)
+  distributions not having `linux/qic117.h`)
 - add support for `MT_ST_SILI` to mt and stinit
 - add mt command `showoptions` for kernels >= 2.6.26
 - fix mode number printing in stinit's verbose mode (from Martin Jacobs)
