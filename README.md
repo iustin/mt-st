@@ -63,7 +63,6 @@ The files:
 - `mt.c`: The mt source
 - `mt.1`: The man page for mt
 - `mtio.h`: The tape command definitions
-- `qic117.h`: Needed by mtio.h
 - `stinit.c`: The stinit source
 - `stinit.8`: The man page for stinit
 - `stinit.def.examples`: example configurations for different devices

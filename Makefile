@@ -17,7 +17,6 @@ DISTFILES = \
 	mt.1 \
 	mt.c \
 	mtio.h \
-	qic117.h \
 	README.md \
 	stinit.8 \
 	stinit.c \
