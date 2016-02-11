@@ -16,6 +16,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -444,18 +445,30 @@ usage(int explain)
 	static int
 do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 {
+    int multiplier, max_count;
     struct mtop mt_com;
     char *endp;
 
     mt_com.mt_op = cmd->cmd_code;
     mt_com.mt_count = (argc > 0 ? strtol(*argv, &endp, 0) : 1);
     if (argc > 0 && endp != *argv) {
+	multiplier = 1;
 	if (*endp == 'k')
-	    mt_com.mt_count *= 1024;
+	    multiplier = 1024;
 	else if (*endp == 'M')
-	    mt_com.mt_count *= 1024 * 1024;
+	    multiplier = 1024 * 1024;
 	else if (*endp == 'G')
-	    mt_com.mt_count *= 1024 * 1024 * 1024;
+	    multiplier = 1024 * 1024 * 1024;
+	else if (*endp != 0) {
+	    fprintf(stderr, "mt: illegal count unit.\n");
+	    return 3;
+	}
+	max_count = INT_MAX / multiplier;
+	if (mt_com.mt_count > max_count) {
+	    fprintf(stderr, "mt: repeat count too large.\n");
+	    return 3;
+	}
+	mt_com.mt_count *= multiplier;
     }
     mt_com.mt_count |= cmd->cmd_count_bits;
     if (mt_com.mt_count < 0) {
