@@ -736,9 +736,6 @@ static int do_show_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 	return 2;
     }
     sscanf(uts.release, "%d.%d.%d", &i, &tapeno, &tapemode);
-    if (i < 2 || tapeno < 6 || tapemode < 26)
-	printf("Your kernel (%d.%d.%d) may be too old for this command.\n",
-	       i, tapeno, tapemode);
 
     if (fstat(mtfd, &stat) < 0) {
 	perror(tape_name);
