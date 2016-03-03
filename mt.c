@@ -26,7 +26,7 @@
 #include "version.h"
 
 #ifndef DEFTAPE
-#define DEFTAPE "/dev/tape"     /* default tape device */
+#define DEFTAPE "/dev/nst0"     /* default tape device */
 #endif /* DEFTAPE */
 
 typedef int (* cmdfunc)(/* int, struct cmdef_tr *, int, char ** */);
