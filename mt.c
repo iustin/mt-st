@@ -462,14 +462,14 @@ do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 	    return 3;
 	}
 	max_count = INT_MAX / multiplier;
-	if (mt_com.mt_count > max_count) {
+	if (abs(mt_com.mt_count) > max_count) {
 	    fprintf(stderr, "mt: repeat count too large.\n");
 	    return 3;
 	}
 	mt_com.mt_count *= multiplier;
     }
     mt_com.mt_count |= cmd->cmd_count_bits;
-    if (mt_com.mt_count < 0) {
+    if (mt_com.mt_op != MTMKPART && mt_com.mt_count < 0) {
 	fprintf(stderr, "mt: negative repeat count\n");
 	return 1;
     }

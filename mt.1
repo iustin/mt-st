@@ -124,7 +124,10 @@ in the partition given by the argument after count. The default
 partition is zero.
 .IP mkpartition
 (SCSI tapes) Format the tape with one (count is zero) or two partitions
-(count gives the size of the second partition in megabytes). The tape
+(count gives the size of the second partition in megabytes). If the count is
+positive, it specifies the size of partition 1. From kernel version 4.6, if
+the count is negative, it specifies the size of partition 0. With older
+kernels, a negative argument formats the tape with one partition. The tape
 drive must be able to format partitioned tapes with
 initiator-specified partition size and partition support
 must be enabled for the drive.
@@ -282,6 +285,11 @@ Otherwise, a default device defined in the file
 is used (note that the actual path to
 .I mtio.h
 can vary per architecture and/or distribution).
+.SH NOTES
+The argument of mkpartition specifies the size of the partition in
+megabytes. If you add a postfix, it applies to this definition. For example,
+argument 1G means 1 giga megabytes, which probably is not what the user is
+anticipating.
 .SH AUTHOR
 The program is written by Kai Makisara <Kai.Makisara@kolumbus.fi>.
 .SH COPYRIGHT
