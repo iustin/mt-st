@@ -1,11 +1,11 @@
 CFLAGS?=  -Wall -O2
-SBINDIR= $(DESTDIR)/sbin
-BINDIR=  $(DESTDIR)/bin
-USRBINDIR= $(DESTDIR)/usr/bin
-MANDIR= $(DESTDIR)/usr/share/man
+PREFIX?= /usr
+EXEC_PREFIX?= /
+SBINDIR= $(DESTDIR)/$(EXEC_PREFIX)/sbin
+BINDIR=  $(DESTDIR)$(EXEC_PREFIX)/bin
+DATAROOTDIR= $(DESTDIR)/$(PREFIX)/share
+MANDIR= $(DATAROOTDIR)/man
 DEFTAPE?= /dev/tape
-
-MTDIR=$(BINDIR)
 
 PROGS=mt stinit
 
@@ -36,8 +36,8 @@ version.h: Makefile
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -DDEFTAPE='"$(DEFTAPE)"' -o $@ $<
 
 install: $(PROGS)
-	install -d $(MTDIR) $(MANDIR) $(SBINDIR)
-	install -s mt $(MTDIR)
+	install -d $(BINDIR)  $(SBINDIR) $(MANDIR) $(MANDIR)/man1 $(MANDIR)/man8
+	install -s mt $(BINDIR)
 	install -c -m 444 mt.1 $(MANDIR)/man1
 	(if [ -f $(MANDIR)/man1/mt.1.gz ] ; then \
 	  rm -f $(MANDIR)/man1/mt.1.gz; gzip $(MANDIR)/man1/mt.1; fi)
