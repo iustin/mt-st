@@ -3,6 +3,7 @@ SBINDIR= $(DESTDIR)/sbin
 BINDIR=  $(DESTDIR)/bin
 USRBINDIR= $(DESTDIR)/usr/bin
 MANDIR= $(DESTDIR)/usr/share/man
+DEFTAPE?= /dev/tape
 
 MTDIR=$(BINDIR)
 
@@ -32,7 +33,7 @@ version.h: Makefile
 	echo '#define VERSION "$(VERSION)"' > $@
 
 %: %.c version.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -DDEFTAPE='"$(DEFTAPE)"' -o $@ $<
 
 install: $(PROGS)
 	install -d $(MTDIR) $(MANDIR) $(SBINDIR)

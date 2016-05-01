@@ -59,6 +59,7 @@ typedef struct cmdef_tr {
 #define ET_WPROT     2
 
 static void usage(int);
+static void version() __attribute__ ((noreturn));
 static int do_standard(int, cmdef_tr *, int, char **);
 static int do_drvbuffer(int, cmdef_tr *, int, char **);
 static int do_options(int, cmdef_tr *, int, char **);
@@ -291,6 +292,7 @@ static struct booleans {
 static char *tape_name;   /* The tape name for messages */
 
 
+
 	int
 main(int argc, char **argv)
 {
@@ -316,14 +318,12 @@ main(int argc, char **argv)
 		exit(0);
 		break;
 	    case 'v':
-		printf("mt-st v. %s\n", VERSION);
-		exit(0);
+		version();
 		break;
 	    case '-':
 		if (*(argv[argn] + 1) == '-' &&
 		    *(argv[argn] + 2) == 'v') {
-		    printf("mt-st v. %s\n", VERSION);
-		    exit(0);
+		    version();
 		}
 		/* Fall through */
 	    default:
@@ -408,6 +408,14 @@ main(int argc, char **argv)
     return i;
 }
 
+
+	static void
+version()
+{
+	printf("mt-st v. %s\n", VERSION);
+	printf("default tape device: '%s'\n", DEFTAPE);
+	exit(0);
+}
 
 	static void
 usage(int explain)
