@@ -3,7 +3,7 @@
 #
 language: c
 # no tests or configuration steps for now
-script: make
+script: make && make distcheck
 # build with both gcc and clang
 compiler:
   - clang
