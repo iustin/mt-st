@@ -749,7 +749,10 @@ static const char *st_formats[] = {
         "m", "v", "p", "x", "a", "y", "q", "z"}; 
 
 /* Show the options if visible in sysfs */
-static int do_show_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
+static int do_show_options(int mtfd,
+    cmdef_tr *cmd __attribute__((unused)),
+    int argc __attribute__((unused)),
+    char **argv __attribute__((unused)))
 {
     int i, fd, options, tapeminor, tapeno, tapemode;
     struct stat stat;
