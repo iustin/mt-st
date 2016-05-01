@@ -255,7 +255,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs,
 	  int parse_only)
 {
     int i, mode, modes_defined, errors;
-    char line[LINEMAX], defstr[DEFMAX], comdef[DEFMAX];
+    char line[LINEMAX], defstr[DEFMAX], comdef[DEFMAX], modebuf[DEFMAX];
     char tmpcomp[LINEMAX], tmpprod[LINEMAX], tmprev[LINEMAX], *cp, c, *t;
     char *nextdef, *curdef, *comptr;
     static int call_nbr = 0;
@@ -349,70 +349,70 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs,
 		continue;
 	    }
 
-	    strcpy(defstr, comptr);
-	    strcat(defstr, cp);
+	    strcpy(modebuf, comptr);
+	    strcat(modebuf, cp);
 	    *nextdef = c;
 
 	    if (verbose > 1)
-		fprintf(stderr, "Mode %d definition: %s\n", mode + 1, defstr);
+		fprintf(stderr, "Mode %d definition: %s\n", mode + 1, modebuf);
 
-	    if ((t = find_string(defstr, "disab", line, LINEMAX)) != NULL &&
+	    if ((t = find_string(modebuf, "disab", line, LINEMAX)) != NULL &&
 		strtol(t, NULL, 0) != 0) {
 		defs->modedefs[mode].defined = FALSE;
 		continue;
 	    }
 
-	    if ((t = find_string(defstr, "drive-", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "drive-", line, LINEMAX)) != NULL)
 		defs->drive_buffering = num_arg(t);
-	    if ((t = find_string(defstr, "timeout", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "timeout", line, LINEMAX)) != NULL)
 		defs->timeout = num_arg(t);
-	    if ((t = find_string(defstr, "long-time", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "long-time", line, LINEMAX)) != NULL)
 		defs->long_timeout = num_arg(t);
-	    if ((t = find_string(defstr, "clean", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "clean", line, LINEMAX)) != NULL)
 		defs->cleaning = num_arg(t);
-	    if ((t = find_string(defstr, "no-w", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "no-w", line, LINEMAX)) != NULL)
 		defs->nowait = num_arg(t);
-	    if ((t = find_string(defstr, "sili", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "sili", line, LINEMAX)) != NULL)
 		defs->sili = num_arg(t);
 
 	    defs->modedefs[mode].defined = TRUE;
-	    if ((t = find_string(defstr, "block", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "block", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].blocksize = num_arg(t);
-	    if ((t = find_string(defstr, "dens", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "dens", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].density = num_arg(t);
-	    if ((t = find_string(defstr, "buff", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "buff", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].buffer_writes = num_arg(t);
-	    if ((t = find_string(defstr, "async", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "async", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].async_writes = num_arg(t);
-	    if ((t = find_string(defstr, "read", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "read", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].read_ahead = num_arg(t);
-	    if ((t = find_string(defstr, "two", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "two", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].two_fm = num_arg(t);
-	    if ((t = find_string(defstr, "comp", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "comp", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].compression = num_arg(t);
-	    if ((t = find_string(defstr, "auto", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "auto", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].auto_lock = num_arg(t);
-	    if ((t = find_string(defstr, "fast", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "fast", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].fast_eod = num_arg(t);
-	    if ((t = find_string(defstr, "can-b", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "can-b", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].can_bsr = num_arg(t);
-	    if ((t = find_string(defstr, "noblk", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "noblk", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].no_blklimits = num_arg(t);
-	    if ((t = find_string(defstr, "can-p", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "can-p", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].can_partitions = num_arg(t);
-	    if ((t = find_string(defstr, "scsi2", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "scsi2", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].scsi2logical = num_arg(t);
-	    if ((t = find_string(defstr, "sysv", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "sysv", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].sysv = num_arg(t);
-	    if ((t = find_string(defstr, "defs-for-w", line, LINEMAX)) != NULL)
+	    if ((t = find_string(modebuf, "defs-for-w", line, LINEMAX)) != NULL)
 		defs->modedefs[mode].defs_for_writes = num_arg(t);
 
-	    for (t=defstr; *t == ' ' || *t == '\t'; t++)
+	    for (t=modebuf; *t == ' ' || *t == '\t'; t++)
 		;
 	    if (*t != '\0' && call_nbr <= 1) {
 		fprintf(stderr,
 			"Warning: errors in definition for ('%s', '%s', '%s'):\n%s\n",
-			tmpcomp, tmpprod, tmprev, defstr);
+			tmpcomp, tmpprod, tmprev, modebuf);
 		errors++;
 	    }
 	}
