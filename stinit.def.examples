@@ -221,3 +221,29 @@ mode2 blocksize=0 density=0x4a compression=0	# 300 GB, no ompression
 mode3 blocksize=0 density=0x4a compression=1	# 300 GB + compression
 mode4 blocksize=0 density=0x4a compression=0	# 300 GB, no ompression
 }
+
+# HP StorageWorks Ultrium 960/920 SAS LTO-3
+manufacturer="HP" model = "Ultrium 3-SCSI" {
+scsi2logical=1
+can-bsr=1
+auto-lock=0
+two-fms=0
+drive-buffering=1
+buffer-writes
+read-ahead=1
+async-writes=1
+can-partitions=0
+fast-eom=1
+blocksize=0
+sili=1
+#
+# If your stinit supports the timeouts:
+timeout=900 # 15 min
+long-timeout=14400 # 4 hours
+#
+# Drive is backwards write compatible to LTO-2 media and read compatible to LTO-1 media. Mode settings are only required for writing, so we need only the LTO-3/LTO-2 modes here.
+mode1 density=0x44 compression=0    # LTO3 400 GB
+mode2 density=0x44 compression=1    # LTO3 400 GB + compression
+mode3 density=0x42 compression=0    # LTO2 220 GB
+mode4 density=0x42 compression=1    # LTO2 220 GB + compression
+}
