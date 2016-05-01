@@ -63,7 +63,7 @@ distcheck: dist
 	DST="$$BASE/dst" && mkdir "$$DST" && \
 	tar xvf $(TARFILE) -C "$$SRC" && \
 	cd "$$SRC/$(RELEASEDIR)" && \
-	make && ./mt --version && ./stinit --version && \
+	make CFLAGS="-Wall -Wextra -Werror" && ./mt --version && ./stinit --version && \
 	make dist && \
 	make install DESTDIR="$$DST" && \
 	numfiles=$$( \
