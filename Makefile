@@ -38,11 +38,11 @@ version.h: Makefile
 install: $(PROGS)
 	install -d $(BINDIR)  $(SBINDIR) $(MANDIR) $(MANDIR)/man1 $(MANDIR)/man8
 	install -s mt $(BINDIR)
-	install -c -m 444 mt.1 $(MANDIR)/man1
+	install -m 444 mt.1 $(MANDIR)/man1
 	(if [ -f $(MANDIR)/man1/mt.1.gz ] ; then \
 	  rm -f $(MANDIR)/man1/mt.1.gz; gzip $(MANDIR)/man1/mt.1; fi)
 	install -s stinit $(SBINDIR)
-	install -c -m 444 stinit.8 $(MANDIR)/man8
+	install -m 444 stinit.8 $(MANDIR)/man8
 	(if [ -f $(MANDIR)/man8/stinit.8.gz ] ; then \
 	  rm -f $(MANDIR)/man8/stinit.8.gz; gzip $(MANDIR)/man8/stinit.8; fi)
 
