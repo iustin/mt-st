@@ -59,10 +59,19 @@ dist:
 distcheck: dist
 	BASE=`mktemp -d` && \
 	trap "rm -rf $$BASE" EXIT && \
-	tar xvf $(TARFILE) -C "$$BASE" && \
-	cd "$$BASE/$(RELEASEDIR)" && \
+	SRC="$$BASE/src" && mkdir "$$SRC" && \
+	DST="$$BASE/dst" && mkdir "$$DST" && \
+	tar xvf $(TARFILE) -C "$$SRC" && \
+	cd "$$SRC/$(RELEASEDIR)" && \
 	make && ./mt --version && ./stinit --version && \
-	make dist
+	make dist && \
+	make install DESTDIR="$$DST" && \
+	numfiles=$$( \
+	find "$$DST" -type f \
+	  \( -name mt -o -name stinit -o -name mt.1 -o -name stinit.8 \) | \
+	  wc -l) && \
+	echo "$$numfiles files installed (4 expected)" && \
+	test "$$numfiles" -eq 4
 
 release-tag:
 	git tag -s -m 'Release version $(VERSION).' mt-st-$(VERSION)
