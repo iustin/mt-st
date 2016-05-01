@@ -171,7 +171,7 @@ long-timeout=14400 # 4 hours
 #
 # Drive is backwards read compatible to DLT4000/7000/8000. Mode settings are only required for writing, so no need to define any other modes here.
 mode1 blocksize=0 density=0x48 compression=1	# 110 GB + compression
-mode2 blocksize=0 density=0x48 compression=0	# 110 GB, no ompression
+mode2 blocksize=0 density=0x48 compression=0	# 110 GB, no compression
 }
 
 # SDLT320
@@ -193,9 +193,9 @@ long-timeout=14400 # 4 hours
 #
 # Drive is backwards write compatible to SDLT220 and read compatible to DLT4000/7000/8000. Mode settings are only required for writing, so we need only the SDL220/320 modes here
 mode1 blocksize=0 density=0x49 compression=1	# 160 GB + compression
-mode2 blocksize=0 density=0x49 compression=0	# 160 GB, no ompression
+mode2 blocksize=0 density=0x49 compression=0	# 160 GB, no compression
 mode3 blocksize=0 density=0x48 compression=1	# 110 GB + compression
-mode4 blocksize=0 density=0x48 compression=0	# 110 GB, no ompression
+mode4 blocksize=0 density=0x48 compression=0	# 110 GB, no compression
 }
 
 # SDLT600
@@ -217,9 +217,9 @@ long-timeout=14400 # 4 hours
 #
 # Drive is backwards read compatible to SDLT220/320 and VS160. Mode settings are only required for writing, so we need only the native SDLT600 mode here.
 mode1 blocksize=0 density=0x4a compression=1	# 300 GB + compression
-mode2 blocksize=0 density=0x4a compression=0	# 300 GB, no ompression
+mode2 blocksize=0 density=0x4a compression=0	# 300 GB, no compression
 mode3 blocksize=0 density=0x4a compression=1	# 300 GB + compression
-mode4 blocksize=0 density=0x4a compression=0	# 300 GB, no ompression
+mode4 blocksize=0 density=0x4a compression=0	# 300 GB, no compression
 }
 
 # HP StorageWorks Ultrium 960/920 SAS LTO-3
