@@ -47,6 +47,7 @@ install: $(PROGS)
 	  rm -f $(MANDIR)/man8/stinit.8.gz; gzip $(MANDIR)/man8/stinit.8; fi)
 
 dist:
+	rm -f "$(TARFILE)" && \
 	BASE=`mktemp -d` && \
 	trap "rm -rf $$BASE" EXIT && \
 	DIST="$$BASE/$(RELEASEDIR)" && \
