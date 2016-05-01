@@ -64,7 +64,9 @@ distcheck: dist
 	DST="$$BASE/dst" && mkdir "$$DST" && \
 	tar xvf $(TARFILE) -C "$$SRC" && \
 	cd "$$SRC/$(RELEASEDIR)" && \
-	make CFLAGS="-Wall -Wextra -Werror" && ./mt --version && ./stinit --version && \
+	make CFLAGS="-Wall -Wextra -Werror" && \
+	./mt --version && ./stinit --version && \
+	./stinit -p -f stinit.def.examples && \
 	make dist && \
 	make install DESTDIR="$$DST" && \
 	numfiles=$$( \
