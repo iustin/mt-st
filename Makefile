@@ -23,7 +23,7 @@ DISTFILES = \
 	stinit.c \
 	stinit.def.examples
 
-VERSION=1.2
+VERSION=1.3
 RELEASEDIR=mt-st-$(VERSION)
 TARFILE=mt-st-$(VERSION).tar.gz
 

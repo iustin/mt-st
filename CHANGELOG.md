@@ -1,5 +1,20 @@
 # Changelog
 
+## Changes in version 1.3 (Sun, 01 May 2016)
+
+Small bugfixes and improvements:
+
+- add more density codes (Kai Mäkisara)
+- check for overflow when using k, M or G suffixes (Kai Mäkisara)
+- allow negative argument for mkpartition, supported by Linux 4.6 and
+  later (Kai Mäkisara)
+- fix compilation with musl libc (Felix Janda)
+- allow configuring the tape device and installation paths (e.g. /bin
+  vs. /usr/bin) at build/install time (Iustin Pop)
+- code cleanups from the SUSE package (Alexey Svistunov)
+- update the supplied example file (Alexey Svistunov)
+- fix config file parsing bug in stinit (Iustin Pop)
+
 ## Changes in version 1.2 (Sun, 07 Feb 2016)
 
 This a mostly a cleanup release after many years of no updates,
