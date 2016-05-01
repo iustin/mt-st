@@ -1,0 +1,13 @@
+#
+# travis-ci configuration file
+#
+language: c
+# no tests or configuration steps for now
+script: make
+# build with both gcc and clang
+compiler:
+  - clang
+  - gcc
+# just in case the defaults change, we're only interested in Linux:
+os:
+  - linux
