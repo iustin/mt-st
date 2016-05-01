@@ -209,7 +209,7 @@ num_arg(char *t)
 
 
 	static int
-next_block(FILE *dbf, char *buf, int buflen, int limiter)
+next_block(FILE *dbf, char *buf, int buflen __attribute__((unused)), int limiter)
 {
     int len;
     char *cp, *bp;

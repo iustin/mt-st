@@ -30,9 +30,11 @@
 #define DEFTAPE "/dev/tape"     /* default tape device */
 #endif /* DEFTAPE */
 
-typedef int (* cmdfunc)(/* int, struct cmdef_tr *, int, char ** */);
+typedef struct cmdef_tr cmdef_tr;
 
-typedef struct cmdef_tr {
+typedef int (* cmdfunc)(int, struct cmdef_tr *, int, char **);
+
+struct cmdef_tr {
     char *cmd_name;
     int cmd_code;
     cmdfunc cmd_function;
@@ -40,7 +42,7 @@ typedef struct cmdef_tr {
     unsigned char cmd_fdtype;
     unsigned char arg_cnt;
     int error_tests;
-} cmdef_tr;
+};
 
 #define NO_FD      0
 #define FD_RDONLY  1
@@ -164,7 +166,7 @@ static cmdef_tr cmds[] = {
     ET_ONLINE },
     { "stshowoptions",	0,         do_show_options, 0,  FD_RDONLY, ONE_ARG,
     0 },
-    { NULL, 0, 0, 0, 0, 0, 0 }
+    { NULL, 0, 0, 0, NO_FD, NO_ARGS, 0 }
 };
 
 
@@ -575,7 +577,8 @@ do_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 
 /* Tell where the tape is */
 	static int
-do_tell(int mtfd, cmdef_tr *cmd, int argc, char **argv)
+do_tell(int mtfd, cmdef_tr *cmd __attribute__((unused)),
+       int argc __attribute__((unused)), char **argv __attribute__((unused)))
 {
     struct mtpos mt_pos;
 
@@ -590,7 +593,7 @@ do_tell(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 
 /* Position the tape to a specific location within a specified partition */
 	static int
-do_partseek(int mtfd, cmdef_tr *cmd, int argc, char **argv)
+do_partseek(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc, char **argv)
 {
     struct mtop mt_com;
 
@@ -613,7 +616,7 @@ do_partseek(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 /* Position to start of file n. This might be implemented more intelligently
    some day. */
 	static int
-do_asf(int mtfd, cmdef_tr *cmd, int argc, char **argv)
+do_asf(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc, char **argv)
 {
     struct mtop mt_com;
 
@@ -638,7 +641,9 @@ do_asf(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 /*** Decipher the status ***/
 
 	static int
-do_status(int mtfd, cmdef_tr *cmd, int argc, char **argv)
+do_status(int mtfd, cmdef_tr *cmd __attribute__((unused)),
+       int argc __attribute__((unused)),
+       char **argv __attribute__((unused)))
 {
     struct mtget status;
     int dens;
@@ -796,7 +801,10 @@ static int do_show_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 
 /* Print a list of possible density codes */
 	static int
-print_densities(int fd, cmdef_tr *cmd, int argc, char **argv)
+print_densities(int fd __attribute__((unused)),
+       cmdef_tr *cmd __attribute__((unused)),
+       int argc __attribute__((unused)),
+       char **argv __attribute__((unused)))
 {
     unsigned int i, offset;
 
