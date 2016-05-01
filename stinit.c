@@ -209,9 +209,9 @@ num_arg(char *t)
 
 
 	static int
-next_block(FILE *dbf, char *buf, int buflen __attribute__((unused)), int limiter)
+next_block(FILE *dbf, char *buf, size_t buflen, int limiter)
 {
-    int len;
+    size_t len;
     char *cp, *bp;
     static char lbuf[LINEMAX];
 
@@ -231,7 +231,7 @@ next_block(FILE *dbf, char *buf, int buflen __attribute__((unused)), int limiter
 	    memmove(lbuf, cp, strlen(cp) + 1);
 	    return TRUE;
 	}
-	if (len + strlen(lbuf) >= DEFMAX) {
+	if (len + strlen(lbuf) >= buflen) {
 	    fprintf(stderr, "Too long definition: '%s'\n", buf);
 	    return FALSE;
 	}
