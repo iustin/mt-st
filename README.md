@@ -11,6 +11,9 @@ Iustin Pop (<iustin@k1024.org>). For copyright information, see the
 For more information, bug reports and the source code repository,
 please see the project homepage at <https://github.com/iustin/mt-st>.
 
+Build status:
+[![Build Status](https://travis-ci.org/iustin/mt-st.svg?branch=master)](https://travis-ci.org/iustin/mt-st)
+
 ## mt
 
 `mt` is basically a "standard" mt with additional commands to send the
