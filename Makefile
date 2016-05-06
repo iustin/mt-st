@@ -21,7 +21,9 @@ DISTFILES = \
 	README.md \
 	stinit.8 \
 	stinit.c \
-	stinit.def.examples
+	stinit.def.examples \
+	.dir-locals.el \
+	.clang-format
 
 VERSION=1.3
 RELEASEDIR=mt-st-$(VERSION)
@@ -82,4 +84,7 @@ release-tag:
 clean:
 	rm -f *~ \#*\# *.o $(PROGS) version.h
 
-.PHONY: dist distcheck clean
+reindent:
+	clang-format -i mt.c stinit.c
+
+.PHONY: dist distcheck clean reindent

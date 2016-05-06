@@ -1,12 +1,12 @@
 /*	This file contains the source of the 'mt' program intended for
-	Linux systems. The program supports the basic mt commands found
-	in most Unix-like systems. In addition to this the program
-	supports several commands designed for use with the Linux SCSI
-	tape drive.
+    Linux systems. The program supports the basic mt commands found
+    in most Unix-like systems. In addition to this the program
+    supports several commands designed for use with the Linux SCSI
+    tape drive.
 
-	Maintained by Iustin Pop (iustin@k1024.org).
-	Copyright by Kai Mäkisara, 1998 - 2008. The program may be distributed
-	according to the GNU Public License.
+    Maintained by Iustin Pop (iustin@k1024.org).
+    Copyright by Kai Mäkisara, 1998 - 2008. The program may be distributed
+    according to the GNU Public License.
 */
 
 #include <stdio.h>
@@ -27,12 +27,12 @@
 #include "version.h"
 
 #ifndef DEFTAPE
-#define DEFTAPE "/dev/tape"     /* default tape device */
-#endif /* DEFTAPE */
+#define DEFTAPE "/dev/tape" /* default tape device */
+#endif                      /* DEFTAPE */
 
 typedef struct cmdef_tr cmdef_tr;
 
-typedef int (* cmdfunc)(int, struct cmdef_tr *, int, char **);
+typedef int (*cmdfunc)(int, struct cmdef_tr *, int, char **);
 
 struct cmdef_tr {
     char *cmd_name;
@@ -44,24 +44,24 @@ struct cmdef_tr {
     int error_tests;
 };
 
-#define NO_FD      0
-#define FD_RDONLY  1
-#define FD_RDWR    2
+#define NO_FD 0
+#define FD_RDONLY 1
+#define FD_RDWR 2
 
-#define NO_ARGS       0
-#define ONE_ARG       1
-#define TWO_ARGS      2
-#define MANY_ARGS   255
+#define NO_ARGS 0
+#define ONE_ARG 1
+#define TWO_ARGS 2
+#define MANY_ARGS 255
 
-#define DO_BOOLEANS    1002
-#define SET_BOOLEANS   1003
+#define DO_BOOLEANS 1002
+#define SET_BOOLEANS 1003
 #define CLEAR_BOOLEANS 1004
 
-#define ET_ONLINE    1
-#define ET_WPROT     2
+#define ET_ONLINE 1
+#define ET_WPROT 2
 
 static void usage(int);
-static void version() __attribute__ ((noreturn));
+static void version() __attribute__((noreturn));
 static int do_standard(int, cmdef_tr *, int, char **);
 static int do_drvbuffer(int, cmdef_tr *, int, char **);
 static int do_options(int, cmdef_tr *, int, char **);
@@ -255,168 +255,158 @@ static struct booleans {
     /* clang-format on */
 };
 
-static char *tape_name;   /* The tape name for messages */
+static char *tape_name; /* The tape name for messages */
 
 
-
-	int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     int mtfd, i, argn, oflags;
     unsigned int len;
     char *cmdstr;
     cmdef_tr *comp, *comp2;
 
-    for (argn=1; argn < argc; argn++)
-	if (*argv[argn] == '-')
-	    switch (*(argv[argn] + 1)) {
-	    case 'f':
-	    case 't':
-		argn += 1;
-		if (argn >= argc) {
-		    usage(0);
-		    exit(1);
-		}
-		tape_name = argv[argn];
-		break;
-	    case 'h':
-		usage(1);
-		exit(0);
-		break;
-	    case 'v':
-		version();
-		break;
-	    case '-':
-		if (*(argv[argn] + 1) == '-' &&
-		    *(argv[argn] + 2) == 'v') {
-		    version();
-		}
-		/* Fall through */
-	    default:
-		usage(0);
-		exit(1);
-	}
-	else
-	    break;
+    for (argn = 1; argn < argc; argn++)
+        if (*argv[argn] == '-')
+            switch (*(argv[argn] + 1)) {
+            case 'f':
+            case 't':
+                argn += 1;
+                if (argn >= argc) {
+                    usage(0);
+                    exit(1);
+                }
+                tape_name = argv[argn];
+                break;
+            case 'h':
+                usage(1);
+                exit(0);
+                break;
+            case 'v':
+                version();
+                break;
+            case '-':
+                if (*(argv[argn] + 1) == '-' && *(argv[argn] + 2) == 'v') {
+                    version();
+                }
+            /* Fall through */
+            default:
+                usage(0);
+                exit(1);
+            }
+        else
+            break;
 
     if (tape_name == NULL && (tape_name = getenv("TAPE")) == NULL) {
-	struct stat stbuf;
+        struct stat stbuf;
 
-	tape_name = DEFTAPE;
-	if (!stat(tape_name, &stbuf) &&
-	    !S_ISCHR(stbuf.st_mode)) {
-	    fprintf(stderr, "The default '%s' is not a character device.\n\n", tape_name);
-	    usage(1);
-	    exit(1);
-	}
+        tape_name = DEFTAPE;
+        if (!stat(tape_name, &stbuf) && !S_ISCHR(stbuf.st_mode)) {
+            fprintf(stderr, "The default '%s' is not a character device.\n\n", tape_name);
+            usage(1);
+            exit(1);
+        }
     }
-       
-    if (argn >= argc ) {
-	usage(0);
-	exit(1);
+
+    if (argn >= argc) {
+        usage(0);
+        exit(1);
     }
     cmdstr = argv[argn++];
 
     len = strlen(cmdstr);
     for (comp = cmds; comp->cmd_name != NULL; comp++)
-	if (strncmp(cmdstr, comp->cmd_name, len) == 0)
-	    break;
+        if (strncmp(cmdstr, comp->cmd_name, len) == 0)
+            break;
     if (comp->cmd_name == NULL) {
-	fprintf(stderr, "mt: unknown command \"%s\"\n", cmdstr);
-	usage(1);
-	exit(1);
+        fprintf(stderr, "mt: unknown command \"%s\"\n", cmdstr);
+        usage(1);
+        exit(1);
     }
     if (len != strlen(comp->cmd_name)) {
-	for (comp2 = comp + 1; comp2->cmd_name != NULL; comp2++)
-	    if (strncmp(cmdstr, comp2->cmd_name, len) == 0)
-		break;
-	if (comp2->cmd_name != NULL) {
-	    fprintf(stderr, "mt: ambiguous command \"%s\"\n", cmdstr);
-	    usage(1);
-	    exit(1);
-	}
+        for (comp2 = comp + 1; comp2->cmd_name != NULL; comp2++)
+            if (strncmp(cmdstr, comp2->cmd_name, len) == 0)
+                break;
+        if (comp2->cmd_name != NULL) {
+            fprintf(stderr, "mt: ambiguous command \"%s\"\n", cmdstr);
+            usage(1);
+            exit(1);
+        }
     }
     if (comp->arg_cnt != MANY_ARGS && comp->arg_cnt < argc - argn) {
-	fprintf(stderr, "mt: too many arguments for the command '%s'.\n",
-		comp->cmd_name);
-	exit(1);
+        fprintf(stderr, "mt: too many arguments for the command '%s'.\n", comp->cmd_name);
+        exit(1);
     }
 
     if (comp->cmd_fdtype != NO_FD) {
-	oflags = comp->cmd_fdtype == FD_RDONLY ? O_RDONLY : O_RDWR;
-	if ((comp->error_tests & ET_ONLINE) == 0)
-	    oflags |= O_NONBLOCK;
-	if ((mtfd = open(tape_name, oflags)) < 0) {
-	    perror(tape_name);
-	    exit(1);
-	}
-    }
-    else
-	mtfd = (-1);
+        oflags = comp->cmd_fdtype == FD_RDONLY ? O_RDONLY : O_RDWR;
+        if ((comp->error_tests & ET_ONLINE) == 0)
+            oflags |= O_NONBLOCK;
+        if ((mtfd = open(tape_name, oflags)) < 0) {
+            perror(tape_name);
+            exit(1);
+        }
+    } else
+        mtfd = (-1);
 
     if (comp->cmd_function != NULL) {
-	i = comp->cmd_function(mtfd, comp, argc - argn,
-			       (argc - argn > 0 ? argv + argn : NULL));
-	if (i) {
-	    if (errno == ENOSYS)
-		fprintf(stderr, "mt: Command not supported by this kernel.\n");
-	    else if (comp->error_tests != 0)
-		test_error(mtfd, comp);
-	}
-    }
-    else {
-	fprintf(stderr, "mt: Internal error: command without function.\n");
-	i = 1;
+        i = comp->cmd_function(mtfd, comp, argc - argn,
+                               (argc - argn > 0 ? argv + argn : NULL));
+        if (i) {
+            if (errno == ENOSYS)
+                fprintf(stderr, "mt: Command not supported by this kernel.\n");
+            else if (comp->error_tests != 0)
+                test_error(mtfd, comp);
+        }
+    } else {
+        fprintf(stderr, "mt: Internal error: command without function.\n");
+        i = 1;
     }
 
     if (mtfd >= 0)
-	close(mtfd);
+        close(mtfd);
     return i;
 }
 
 
-	static void
-version()
+static void version()
 {
-	printf("mt-st v. %s\n", VERSION);
-	printf("default tape device: '%s'\n", DEFTAPE);
-	exit(0);
+    printf("mt-st v. %s\n", VERSION);
+    printf("default tape device: '%s'\n", DEFTAPE);
+    exit(0);
 }
 
-	static void
-usage(int explain)
+static void usage(int explain)
 {
     int ind;
     char line[100];
 
-    fprintf(stderr, "usage: mt [-v] [--version] [-h] [ -f device ] command [ count ]\n");
+    fprintf(stderr, "usage: mt [-v] [--version] [-h] [ -f device ] command [ "
+                    "count ]\n");
     if (explain) {
-	for (ind=0; cmds[ind].cmd_name != NULL; ) {
-	    if (ind == 0)
-		strcpy(line, "commands: ");
-	    else
-		strcpy(line, "          ");
-	    for ( ; cmds[ind].cmd_name != NULL; ind++) {
-		strcat(line, cmds[ind].cmd_name);
-		if (cmds[ind+1].cmd_name != NULL)
-		    strcat(line, ", ");
-		else
-		    strcat(line, ".");
-		if (strlen(line) >= 70 || cmds[ind+1].cmd_name == NULL) {
-		    fprintf(stderr, "%s\n", line);
-		    ind++;
-		    break;
-		}
-	    }
-	}
+        for (ind = 0; cmds[ind].cmd_name != NULL;) {
+            if (ind == 0)
+                strcpy(line, "commands: ");
+            else
+                strcpy(line, "          ");
+            for (; cmds[ind].cmd_name != NULL; ind++) {
+                strcat(line, cmds[ind].cmd_name);
+                if (cmds[ind + 1].cmd_name != NULL)
+                    strcat(line, ", ");
+                else
+                    strcat(line, ".");
+                if (strlen(line) >= 70 || cmds[ind + 1].cmd_name == NULL) {
+                    fprintf(stderr, "%s\n", line);
+                    ind++;
+                    break;
+                }
+            }
+        }
     }
 }
 
 
-
 /* Do a command that simply feeds an argument to the MTIOCTOP ioctl */
-	static int
-do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
+static int do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 {
     int multiplier, max_count;
     struct mtop mt_com;
@@ -425,32 +415,32 @@ do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
     mt_com.mt_op = cmd->cmd_code;
     mt_com.mt_count = (argc > 0 ? strtol(*argv, &endp, 0) : 1);
     if (argc > 0 && endp != *argv) {
-	multiplier = 1;
-	if (*endp == 'k')
-	    multiplier = 1024;
-	else if (*endp == 'M')
-	    multiplier = 1024 * 1024;
-	else if (*endp == 'G')
-	    multiplier = 1024 * 1024 * 1024;
-	else if (*endp != 0) {
-	    fprintf(stderr, "mt: illegal count unit.\n");
-	    return 3;
-	}
-	max_count = INT_MAX / multiplier;
-	if (abs(mt_com.mt_count) > max_count) {
-	    fprintf(stderr, "mt: repeat count too large.\n");
-	    return 3;
-	}
-	mt_com.mt_count *= multiplier;
+        multiplier = 1;
+        if (*endp == 'k')
+            multiplier = 1024;
+        else if (*endp == 'M')
+            multiplier = 1024 * 1024;
+        else if (*endp == 'G')
+            multiplier = 1024 * 1024 * 1024;
+        else if (*endp != 0) {
+            fprintf(stderr, "mt: illegal count unit.\n");
+            return 3;
+        }
+        max_count = INT_MAX / multiplier;
+        if (abs(mt_com.mt_count) > max_count) {
+            fprintf(stderr, "mt: repeat count too large.\n");
+            return 3;
+        }
+        mt_com.mt_count *= multiplier;
     }
     mt_com.mt_count |= cmd->cmd_count_bits;
     if (mt_com.mt_op != MTMKPART && mt_com.mt_count < 0) {
-	fprintf(stderr, "mt: negative repeat count\n");
-	return 1;
+        fprintf(stderr, "mt: negative repeat count\n");
+        return 1;
     }
     if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
-	perror(tape_name);
-	return 2;
+        perror(tape_name);
+        return 2;
     }
     return 0;
 }
@@ -458,33 +448,31 @@ do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 
 /* The the drive buffering and other things with this (highly overloaded)
    ioctl function. (See also do_options below.) */
-	static int
-do_drvbuffer(int mtfd, cmdef_tr *cmd, int argc, char **argv)
+static int do_drvbuffer(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 {
     struct mtop mt_com;
 
     mt_com.mt_op = MTSETDRVBUFFER;
     mt_com.mt_count = (argc > 0 ? strtol(*argv, NULL, 0) : 1);
     if ((cmd->cmd_count_bits & MT_ST_OPTIONS) == MT_ST_DEF_OPTIONS)
-	mt_com.mt_count &= 0xfffff;
+        mt_com.mt_count &= 0xfffff;
 #ifdef MT_ST_TIMEOUTS
     else if ((cmd->cmd_count_bits & MT_ST_OPTIONS) == MT_ST_TIMEOUTS)
-	mt_com.mt_count &= 0x7ffffff;
+        mt_com.mt_count &= 0x7ffffff;
 #endif
     else
-	mt_com.mt_count &= 0xfffffff;
+        mt_com.mt_count &= 0xfffffff;
     mt_com.mt_count |= cmd->cmd_count_bits;
     if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
-	perror(tape_name);
-	return 2;
+        perror(tape_name);
+        return 2;
     }
     return 0;
 }
 
 
 /* Set the tape driver options */
-	static int
-do_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
+static int do_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 {
     int i, an;
     unsigned int len;
@@ -492,63 +480,63 @@ do_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 
     mt_com.mt_op = MTSETDRVBUFFER;
     if (argc == 0)
-	mt_com.mt_count = 0;
+        mt_com.mt_count = 0;
     else if (isdigit(**argv))
-	mt_com.mt_count = strtol(*argv, NULL, 0) & ~MT_ST_OPTIONS;
+        mt_com.mt_count = strtol(*argv, NULL, 0) & ~MT_ST_OPTIONS;
     else
-	for (an = 0, mt_com.mt_count = 0; an < argc; an++) {
-	    len = strlen(argv[an]);
-	    for (i=0; boolean_tbl[i].name != NULL; i++)
-		if (!strncmp(boolean_tbl[i].name, argv[an], len)) {
-		    mt_com.mt_count |= boolean_tbl[i].bitmask;
-		    break;
-		}
-	    if (boolean_tbl[i].name == NULL) {
-		fprintf(stderr, "Illegal property name '%s'.\n", argv[an]);
-		fprintf(stderr, "The implemented property names are:\n");
-		for (i=0; boolean_tbl[i].name != NULL; i++)
-		    fprintf(stderr, "  %9s -> %s\n", boolean_tbl[i].name,
-			    boolean_tbl[i].expl);
-		return 1;
-	    }
-	    if (len != strlen(boolean_tbl[i].name))
-		for (i++ ; boolean_tbl[i].name != NULL; i++)
-		    if (!strncmp(boolean_tbl[i].name, argv[an], len)) {
-			fprintf(stderr, "Property name '%s' ambiguous.\n",
-				argv[an]);
-			return 1;
-		    }
-	}
+        for (an = 0, mt_com.mt_count = 0; an < argc; an++) {
+            len = strlen(argv[an]);
+            for (i = 0; boolean_tbl[i].name != NULL; i++)
+                if (!strncmp(boolean_tbl[i].name, argv[an], len)) {
+                    mt_com.mt_count |= boolean_tbl[i].bitmask;
+                    break;
+                }
+            if (boolean_tbl[i].name == NULL) {
+                fprintf(stderr, "Illegal property name '%s'.\n", argv[an]);
+                fprintf(stderr, "The implemented property names are:\n");
+                for (i = 0; boolean_tbl[i].name != NULL; i++)
+                    fprintf(stderr, "  %9s -> %s\n", boolean_tbl[i].name,
+                            boolean_tbl[i].expl);
+                return 1;
+            }
+            if (len != strlen(boolean_tbl[i].name))
+                for (i++; boolean_tbl[i].name != NULL; i++)
+                    if (!strncmp(boolean_tbl[i].name, argv[an], len)) {
+                        fprintf(stderr, "Property name '%s' ambiguous.\n", argv[an]);
+                        return 1;
+                    }
+        }
 
     switch (cmd->cmd_code) {
     case DO_BOOLEANS:
-	mt_com.mt_count |= MT_ST_BOOLEANS;
-	break;
+        mt_com.mt_count |= MT_ST_BOOLEANS;
+        break;
     case SET_BOOLEANS:
-	mt_com.mt_count |= MT_ST_SETBOOLEANS;
-	break;
+        mt_com.mt_count |= MT_ST_SETBOOLEANS;
+        break;
     case CLEAR_BOOLEANS:
-	mt_com.mt_count |= MT_ST_CLEARBOOLEANS;
-	break;
+        mt_com.mt_count |= MT_ST_CLEARBOOLEANS;
+        break;
     }
     if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
-	perror(tape_name);
-	return 2;
+        perror(tape_name);
+        return 2;
     }
     return 0;
 }
 
 
 /* Tell where the tape is */
-	static int
-do_tell(int mtfd, cmdef_tr *cmd __attribute__((unused)),
-       int argc __attribute__((unused)), char **argv __attribute__((unused)))
+static int do_tell(int mtfd,
+                   cmdef_tr *cmd __attribute__((unused)),
+                   int argc __attribute__((unused)),
+                   char **argv __attribute__((unused)))
 {
     struct mtpos mt_pos;
 
     if (ioctl(mtfd, MTIOCPOS, (char *)&mt_pos) < 0) {
-	perror(tape_name);
-	return 2;
+        perror(tape_name);
+        return 2;
     }
     printf("At block %ld.\n", mt_pos.mt_blkno);
     return 0;
@@ -556,22 +544,21 @@ do_tell(int mtfd, cmdef_tr *cmd __attribute__((unused)),
 
 
 /* Position the tape to a specific location within a specified partition */
-	static int
-do_partseek(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc, char **argv)
+static int do_partseek(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc, char **argv)
 {
     struct mtop mt_com;
 
     mt_com.mt_op = MTSETPART;
     mt_com.mt_count = (argc > 0 ? strtol(*argv, NULL, 0) : 0);
     if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
-	perror(tape_name);
-	return 2;
+        perror(tape_name);
+        return 2;
     }
     mt_com.mt_op = MTSEEK;
     mt_com.mt_count = (argc > 1 ? strtol(argv[1], NULL, 0) : 0);
     if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
-	perror(tape_name);
-	return 2;
+        perror(tape_name);
+        return 2;
     }
     return 0;
 }
@@ -579,35 +566,34 @@ do_partseek(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc, char **ar
 
 /* Position to start of file n. This might be implemented more intelligently
    some day. */
-	static int
-do_asf(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc, char **argv)
+static int do_asf(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc, char **argv)
 {
     struct mtop mt_com;
 
     mt_com.mt_op = MTREW;
     mt_com.mt_count = 1;
     if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
-	perror(tape_name);
-	return 2;
+        perror(tape_name);
+        return 2;
     }
     mt_com.mt_count = (argc > 0 ? strtol(*argv, NULL, 0) : 0);
     if (mt_com.mt_count > 0) {
-	mt_com.mt_op = MTFSF;
-	if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
-	    perror(tape_name);
-	    return 2;
-	}
+        mt_com.mt_op = MTFSF;
+        if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
+            perror(tape_name);
+            return 2;
+        }
     }
     return 0;
 }
 
 
-/*** Decipher the status ***/
+/*** Decipher the status ***/
 
-	static int
-do_status(int mtfd, cmdef_tr *cmd __attribute__((unused)),
-       int argc __attribute__((unused)),
-       char **argv __attribute__((unused)))
+static int do_status(int mtfd,
+                     cmdef_tr *cmd __attribute__((unused)),
+                     int argc __attribute__((unused)),
+                     char **argv __attribute__((unused)))
 {
     struct mtget status;
     int dens;
@@ -615,86 +601,80 @@ do_status(int mtfd, cmdef_tr *cmd __attribute__((unused)),
     char *type, *density;
 
     if (ioctl(mtfd, MTIOCGET, (char *)&status) < 0) {
-	perror(tape_name);
-	return 2;
+        perror(tape_name);
+        return 2;
     }
 
     if (status.mt_type == MT_ISSCSI1)
-	type = "SCSI 1";
+        type = "SCSI 1";
     else if (status.mt_type == MT_ISSCSI2)
-	type = "SCSI 2";
+        type = "SCSI 2";
     else if (status.mt_type == MT_ISONSTREAM_SC)
-	type = "OnStream SC-, DI-, DP-, or USB";
+        type = "OnStream SC-, DI-, DP-, or USB";
     else
-	type = NULL;
+        type = NULL;
     if (type == NULL) {
-	if (status.mt_type & 0x800000)
-	    printf ("qic-117 drive type = 0x%05lx\n", status.mt_type & 0x1ffff);
-	else if (status.mt_type == 0)
-	    printf("IDE-Tape (type code 0) ?\n");
-	else
-	    printf("Unknown tape drive type (type code %ld)\n", status.mt_type);
-	printf("File number=%d, block number=%d.\n",
-	       status.mt_fileno, status.mt_blkno);
-	printf("mt_resid: %ld, mt_erreg: 0x%lx\n",
-	       status.mt_resid, status.mt_erreg);
-	printf("mt_dsreg: 0x%lx, mt_gstat: 0x%lx\n",
-	       status.mt_dsreg, status.mt_gstat);
-    }
-    else {
-	printf("%s tape drive:\n", type);
-	if (status.mt_type == MT_ISSCSI2)
-	    printf("File number=%d, block number=%d, partition=%ld.\n",
-		   status.mt_fileno, status.mt_blkno, (status.mt_resid & 0xff));
-	else
-	    printf("File number=%d, block number=%d.\n",
-		   status.mt_fileno, status.mt_blkno);
-	if (status.mt_type == MT_ISSCSI1 ||
-	    status.mt_type == MT_ISSCSI2 ||
-	    status.mt_type == MT_ISONSTREAM_SC) {
-	    dens = (status.mt_dsreg & MT_ST_DENSITY_MASK) >> MT_ST_DENSITY_SHIFT;
-	    density = "no translation";
-	    for (i=0; i < NBR_DENSITIES; i++)
-		if (density_tbl[i].code == dens) {
-		    density = density_tbl[i].name;
-		    break;
-		}
-	    printf("Tape block size %ld bytes. Density code 0x%x (%s).\n",
-		   ((status.mt_dsreg & MT_ST_BLKSIZE_MASK) >> MT_ST_BLKSIZE_SHIFT),
-		   dens, density);
+        if (status.mt_type & 0x800000)
+            printf("qic-117 drive type = 0x%05lx\n", status.mt_type & 0x1ffff);
+        else if (status.mt_type == 0)
+            printf("IDE-Tape (type code 0) ?\n");
+        else
+            printf("Unknown tape drive type (type code %ld)\n", status.mt_type);
+        printf("File number=%d, block number=%d.\n", status.mt_fileno, status.mt_blkno);
+        printf("mt_resid: %ld, mt_erreg: 0x%lx\n", status.mt_resid, status.mt_erreg);
+        printf("mt_dsreg: 0x%lx, mt_gstat: 0x%lx\n", status.mt_dsreg, status.mt_gstat);
+    } else {
+        printf("%s tape drive:\n", type);
+        if (status.mt_type == MT_ISSCSI2)
+            printf("File number=%d, block number=%d, partition=%ld.\n",
+                   status.mt_fileno, status.mt_blkno, (status.mt_resid & 0xff));
+        else
+            printf("File number=%d, block number=%d.\n", status.mt_fileno, status.mt_blkno);
+        if (status.mt_type == MT_ISSCSI1 || status.mt_type == MT_ISSCSI2 ||
+            status.mt_type == MT_ISONSTREAM_SC) {
+            dens = (status.mt_dsreg & MT_ST_DENSITY_MASK) >> MT_ST_DENSITY_SHIFT;
+            density = "no translation";
+            for (i = 0; i < NBR_DENSITIES; i++)
+                if (density_tbl[i].code == dens) {
+                    density = density_tbl[i].name;
+                    break;
+                }
+            printf("Tape block size %ld bytes. Density code 0x%x (%s).\n",
+                   ((status.mt_dsreg & MT_ST_BLKSIZE_MASK) >> MT_ST_BLKSIZE_SHIFT),
+                   dens, density);
 
-	    printf("Soft error count since last status=%ld\n",
-		   (status.mt_erreg & MT_ST_SOFTERR_MASK) >> MT_ST_SOFTERR_SHIFT);
-	}
+            printf("Soft error count since last status=%ld\n",
+                   (status.mt_erreg & MT_ST_SOFTERR_MASK) >> MT_ST_SOFTERR_SHIFT);
+        }
     }
 
     printf("General status bits on (%lx):\n", status.mt_gstat);
     if (GMT_EOF(status.mt_gstat))
-	printf(" EOF");
+        printf(" EOF");
     if (GMT_BOT(status.mt_gstat))
-	printf(" BOT");
+        printf(" BOT");
     if (GMT_EOT(status.mt_gstat))
-	printf(" EOT");
+        printf(" EOT");
     if (GMT_SM(status.mt_gstat))
-	printf(" SM");
+        printf(" SM");
     if (GMT_EOD(status.mt_gstat))
-	printf(" EOD");
+        printf(" EOD");
     if (GMT_WR_PROT(status.mt_gstat))
-	printf(" WR_PROT");
+        printf(" WR_PROT");
     if (GMT_ONLINE(status.mt_gstat))
-	printf(" ONLINE");
+        printf(" ONLINE");
     if (GMT_D_6250(status.mt_gstat))
-	printf(" D_6250");
+        printf(" D_6250");
     if (GMT_D_1600(status.mt_gstat))
-	printf(" D_1600");
+        printf(" D_1600");
     if (GMT_D_800(status.mt_gstat))
-	printf(" D_800");
+        printf(" D_800");
     if (GMT_DR_OPEN(status.mt_gstat))
-	printf(" DR_OPEN");	  
+        printf(" DR_OPEN");
     if (GMT_IM_REP_EN(status.mt_gstat))
-	printf(" IM_REP_EN");
+        printf(" IM_REP_EN");
     if (GMT_CLN(status.mt_gstat))
-	printf(" CLN");
+        printf(" CLN");
     printf("\n");
     return 0;
 }
@@ -705,18 +685,17 @@ do_status(int mtfd, cmdef_tr *cmd __attribute__((unused)),
 #define ST_NBR_MODES (1 << ST_NBR_MODE_BITS)
 #define ST_MODE_SHIFT (7 - ST_NBR_MODE_BITS)
 #define ST_MODE_MASK ((ST_NBR_MODES - 1) << ST_MODE_SHIFT)
-#define TAPE_NR(minor) ( (((minor) & ~255) >> (ST_NBR_MODE_BITS + 1)) | \
-    ((minor) & ~(-1 << ST_MODE_SHIFT)) )
-#define TAPE_MODE(minor) (((minor) & ST_MODE_MASK) >> ST_MODE_SHIFT)
-static const char *st_formats[] = {
-        "",  "r", "k", "s", "l", "t", "o", "u",
-        "m", "v", "p", "x", "a", "y", "q", "z"}; 
+#define TAPE_NR(minor) \
+    ((((minor) & ~255) >> (ST_NBR_MODE_BITS + 1)) | ((minor) & ~(-1 << ST_MODE_SHIFT)))
+#define TAPE_MODE(minor) (((minor)&ST_MODE_MASK) >> ST_MODE_SHIFT)
+static const char *st_formats[] = { "",  "r", "k", "s", "l", "t", "o", "u",
+                                    "m", "v", "p", "x", "a", "y", "q", "z" };
 
 /* Show the options if visible in sysfs */
 static int do_show_options(int mtfd,
-    cmdef_tr *cmd __attribute__((unused)),
-    int argc __attribute__((unused)),
-    char **argv __attribute__((unused)))
+                           cmdef_tr *cmd __attribute__((unused)),
+                           int argc __attribute__((unused)),
+                           char **argv __attribute__((unused)))
 {
     int i, fd, options, tapeminor, tapeno, tapemode;
     struct stat stat;
@@ -724,42 +703,40 @@ static int do_show_options(int mtfd,
     char fname[100], buf[20];
 
     if (uname(&uts) < 0) {
-	perror(tape_name);
-	return 2;
+        perror(tape_name);
+        return 2;
     }
     sscanf(uts.release, "%d.%d.%d", &i, &tapeno, &tapemode);
 
     if (fstat(mtfd, &stat) < 0) {
-	perror(tape_name);
-	return 1;
+        perror(tape_name);
+        return 1;
     }
 
     if (!(stat.st_mode & S_IFCHR)) {
-	fprintf(stderr, "mt: not a character device.\n");
-	return 1;
+        fprintf(stderr, "mt: not a character device.\n");
+        return 1;
     }
 
     tapeminor = minor(stat.st_rdev);
     tapeno = TAPE_NR(tapeminor);
     tapemode = TAPE_MODE(tapeminor);
-    tapemode <<= 4 - ST_NBR_MODE_BITS;  /* from st.c */
-    sprintf(fname, "/sys/class/scsi_tape/st%d%s/options", tapeno,
-	    st_formats[tapemode]);
+    tapemode <<= 4 - ST_NBR_MODE_BITS; /* from st.c */
+    sprintf(fname, "/sys/class/scsi_tape/st%d%s/options", tapeno, st_formats[tapemode]);
     /* printf("Trying file '%s' (st_rdev 0x%lx).\n", fname, stat.st_rdev); */
 
-    if ((fd = open(fname, O_RDONLY)) < 0 ||
-	read(fd, buf, 20) < 0) {
-	fprintf(stderr, "Can't read the sysfs file '%s'.\n", fname);
-	return 2;
+    if ((fd = open(fname, O_RDONLY)) < 0 || read(fd, buf, 20) < 0) {
+        fprintf(stderr, "Can't read the sysfs file '%s'.\n", fname);
+        return 2;
     }
     close(fd);
 
     options = strtol(buf, NULL, 0);
 
     printf("The options set:");
-    for (i=0; boolean_tbl[i].name != NULL; i++)
-	if (options & boolean_tbl[i].bitmask)
-	    printf(" %s", boolean_tbl[i].name);
+    for (i = 0; boolean_tbl[i].name != NULL; i++)
+        if (options & boolean_tbl[i].bitmask)
+            printf(" %s", boolean_tbl[i].name);
     printf("\n");
 
     return 0;
@@ -767,42 +744,42 @@ static int do_show_options(int mtfd,
 
 
 /* Print a list of possible density codes */
-	static int
-print_densities(int fd __attribute__((unused)),
-       cmdef_tr *cmd __attribute__((unused)),
-       int argc __attribute__((unused)),
-       char **argv __attribute__((unused)))
+static int print_densities(int fd __attribute__((unused)),
+                           cmdef_tr *cmd __attribute__((unused)),
+                           int argc __attribute__((unused)),
+                           char **argv __attribute__((unused)))
 {
     unsigned int i, offset;
 
-    printf("Some SCSI tape density codes:\ncode   explanation                   code   explanation\n");
+    printf("Some SCSI tape density codes:\ncode   explanation                  "
+           " code   explanation\n");
     offset = (NBR_DENSITIES + 1) / 2;
-    for (i=0; i < offset; i++) {
-	printf("0x%02x   %-28s", density_tbl[i].code, density_tbl[i].name);
-	if (i + offset < NBR_DENSITIES)
-	    printf("  0x%02x   %s\n", density_tbl[i + offset].code, density_tbl[i + offset].name);
-	else
-	    printf("\n");
+    for (i = 0; i < offset; i++) {
+        printf("0x%02x   %-28s", density_tbl[i].code, density_tbl[i].name);
+        if (i + offset < NBR_DENSITIES)
+            printf("  0x%02x   %s\n", density_tbl[i + offset].code,
+                   density_tbl[i + offset].name);
+        else
+            printf("\n");
     }
     return 0;
 }
 
 
 /* Try to find out why the command failed */
-	static void
-test_error(int mtfd, cmdef_tr *cmd)
+static void test_error(int mtfd, cmdef_tr *cmd)
 {
     struct mtget status;
 
     if (ioctl(mtfd, MTIOCGET, (char *)&status) < 0)
-	return;
+        return;
 
     if (status.mt_type != MT_ISSCSI1 && status.mt_type != MT_ISSCSI2)
-	return;
+        return;
 
     if ((cmd->error_tests & ET_ONLINE) && !GMT_ONLINE(status.mt_gstat))
-	fprintf(stderr, "mt: The device is offline (not powered on, no tape ?).\n");
+        fprintf(stderr,
+                "mt: The device is offline (not powered on, no tape ?).\n");
     if ((cmd->error_tests & ET_WPROT) && !GMT_WR_PROT(status.mt_gstat))
-	fprintf(stderr, "mt: The tape is write-protected.\n");
+        fprintf(stderr, "mt: The tape is write-protected.\n");
 }
-
