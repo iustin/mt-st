@@ -60,7 +60,7 @@ struct cmdef_tr {
 #define ET_ONLINE 1
 #define ET_WPROT 2
 
-static void usage(int);
+static void usage(int explain, int exitcode) __attribute__((noreturn));
 static void version() __attribute__((noreturn));
 static int do_standard(int, cmdef_tr *, int, char **);
 static int do_drvbuffer(int, cmdef_tr *, int, char **);
@@ -272,14 +272,12 @@ int main(int argc, char **argv)
             case 't':
                 argn += 1;
                 if (argn >= argc) {
-                    usage(0);
-                    exit(1);
+                    usage(0, 1);
                 }
                 tape_name = argv[argn];
                 break;
             case 'h':
-                usage(1);
-                exit(0);
+                usage(1, 0);
                 break;
             case 'v':
                 version();
@@ -290,8 +288,7 @@ int main(int argc, char **argv)
                 }
             /* Fall through */
             default:
-                usage(0);
-                exit(1);
+                usage(0, 1);
             }
         else
             break;
@@ -302,14 +299,12 @@ int main(int argc, char **argv)
         tape_name = DEFTAPE;
         if (!stat(tape_name, &stbuf) && !S_ISCHR(stbuf.st_mode)) {
             fprintf(stderr, "The default '%s' is not a character device.\n\n", tape_name);
-            usage(1);
-            exit(1);
+            usage(1, 1);
         }
     }
 
     if (argn >= argc) {
-        usage(0);
-        exit(1);
+        usage(0, 1);
     }
     cmdstr = argv[argn++];
 
@@ -319,8 +314,7 @@ int main(int argc, char **argv)
             break;
     if (comp->cmd_name == NULL) {
         fprintf(stderr, "mt: unknown command \"%s\"\n", cmdstr);
-        usage(1);
-        exit(1);
+        usage(1, 1);
     }
     if (len != strlen(comp->cmd_name)) {
         for (comp2 = comp + 1; comp2->cmd_name != NULL; comp2++)
@@ -328,8 +322,7 @@ int main(int argc, char **argv)
                 break;
         if (comp2->cmd_name != NULL) {
             fprintf(stderr, "mt: ambiguous command \"%s\"\n", cmdstr);
-            usage(1);
-            exit(1);
+            usage(1, 1);
         }
     }
     if (comp->arg_cnt != MANY_ARGS && comp->arg_cnt < argc - argn) {
@@ -375,7 +368,7 @@ static void version()
     exit(0);
 }
 
-static void usage(int explain)
+static void usage(int explain, int exit_code)
 {
     int ind;
     char line[100];
@@ -402,6 +395,7 @@ static void usage(int explain)
             }
         }
     }
+    exit(exit_code);
 }
 
 
