@@ -51,7 +51,7 @@ struct cmdef_tr {
 #define NO_ARGS       0
 #define ONE_ARG       1
 #define TWO_ARGS      2
-#define MULTIPLE_ARGS 255
+#define MANY_ARGS   255
 
 #define DO_BOOLEANS    1002
 #define SET_BOOLEANS   1003
@@ -135,11 +135,11 @@ static cmdef_tr cmds[] = {
     { "stwrthreshold",	MTSETDRVBUFFER, do_drvbuffer, MT_ST_WRITE_THRESHOLD,
       FD_RDONLY, ONE_ARG, 0},
     { "stoptions",	DO_BOOLEANS,    do_options,   0, FD_RDONLY,
-      MULTIPLE_ARGS, 0},
+      MANY_ARGS, 0},
     { "stsetoptions",   SET_BOOLEANS,   do_options,   0, FD_RDONLY,
-      MULTIPLE_ARGS, 0},
+      MANY_ARGS, 0},
     { "stclearoptions", CLEAR_BOOLEANS, do_options,   0, FD_RDONLY,
-      MULTIPLE_ARGS, 0},
+      MANY_ARGS, 0},
     { "defblksize",	MTSETDRVBUFFER, do_drvbuffer, MT_ST_DEF_BLKSIZE,
       FD_RDONLY, ONE_ARG, 0},
     { "defdensity",	MTSETDRVBUFFER, do_drvbuffer, MT_ST_DEF_DENSITY,
@@ -372,7 +372,7 @@ main(int argc, char **argv)
 	    exit(1);
 	}
     }
-    if (comp->arg_cnt != MULTIPLE_ARGS && comp->arg_cnt < argc - argn) {
+    if (comp->arg_cnt != MANY_ARGS && comp->arg_cnt < argc - argn) {
 	fprintf(stderr, "mt: too many arguments for the command '%s'.\n",
 		comp->cmd_name);
 	exit(1);
