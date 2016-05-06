@@ -860,6 +860,7 @@ int main(int argc, char **argv)
     int argn;
     int tapeno, parse_only = FALSE;
     char *dbname = NULL;
+    char *convp;
     devdef_tr defs;
 
     defs.do_rewind = FALSE;
@@ -901,9 +902,15 @@ int main(int argc, char **argv)
             if (*argv[argn] == '-') {
                 usage(1);
                 return 1; /* Never executed but makes gcc happy */
-            } else if (isdigit(*argv[argn]))
-                tapeno = strtol(argv[argn], NULL, 0);
-            else if ((tapeno = tapenum(argv[argn])) < 0) {
+            } else if (isdigit(*argv[argn])) {
+                tapeno = strtol(argv[argn], &convp, 0);
+                if (*argv[argn] != '\0' && *convp != '\0') {
+                    fprintf(stderr, "Invalid tape device index '%s': don't "
+                                    "know how to parse '%s'\n",
+                            argv[argn], convp);
+                    continue;
+                }
+            } else if ((tapeno = tapenum(argv[argn])) < 0) {
                 fprintf(stderr, "Can't find tape number for name '%s'.\n", argv[argn]);
                 continue;
             }
