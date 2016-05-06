@@ -364,7 +364,7 @@ int main(int argc, char **argv)
 static void version()
 {
     printf("mt-st v. %s\n", VERSION);
-    printf("default tape device: '%s'\n", DEFTAPE);
+    printf("default tape device: %s\n", DEFTAPE);
     exit(0);
 }
 
@@ -375,6 +375,7 @@ static void usage(int explain, int exit_code)
 
     fprintf(stderr, "usage: mt [-v] [--version] [-h] [ -f device ] command [ "
                     "count ]\n");
+    fprintf(stderr, "default tape device: %s\n", DEFTAPE);
     if (explain) {
         for (ind = 0; cmds[ind].cmd_name != NULL;) {
             if (ind == 0)
