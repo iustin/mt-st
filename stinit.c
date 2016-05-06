@@ -89,6 +89,8 @@ static char *tape_name_bases[] = { "st", "nst", "rmt", "nrmt", "tape", NULL };
 /* The list of standard definition files being searched */
 static char *std_databases[] = { "/etc/stinit.def", NULL };
 
+static char usage(int retval) __attribute__((noreturn));
+
 static FILE *open_database(char *base)
 {
     int i;
@@ -901,7 +903,6 @@ int main(int argc, char **argv)
         for (; argn < argc; argn++) {
             if (*argv[argn] == '-') {
                 usage(1);
-                return 1; /* Never executed but makes gcc happy */
             } else if (isdigit(*argv[argn])) {
                 tapeno = strtol(argv[argn], &convp, 0);
                 if (*argv[argn] != '\0' && *convp != '\0') {
