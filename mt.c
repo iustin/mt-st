@@ -694,14 +694,7 @@ static int do_show_options(int mtfd,
 {
     int i, fd, options, tapeminor, tapeno, tapemode;
     struct stat stat;
-    struct utsname uts;
     char fname[100], buf[20];
-
-    if (uname(&uts) < 0) {
-        perror(tape_name);
-        return 2;
-    }
-    sscanf(uts.release, "%d.%d.%d", &i, &tapeno, &tapemode);
 
     if (fstat(mtfd, &stat) < 0) {
         perror(tape_name);
