@@ -202,6 +202,7 @@ static struct densities {
     { 0x58, "LTO-5"                          },
     { 0x5a, "LTO-6"                          },
     { 0x5c, "LTO-7"                          },
+    { 0x5e, "LTO-8"                          },
     { 0x71, "IBM 3592 J1A, encrypted"        },
     { 0x72, "IBM 3592 E05, encrypted"        },
     { 0x73, "IBM 3592 E06, encrypted"        },
