@@ -371,7 +371,7 @@ static void version()
 static void usage(int explain, int exit_code)
 {
     int ind;
-    char line[100];
+    int counter = 0;
 
     fprintf(stderr, "usage: mt [-v] [--version] [-h] [ -f device ] command [ "
                     "count ]\n");
@@ -379,17 +379,17 @@ static void usage(int explain, int exit_code)
     if (explain) {
         for (ind = 0; cmds[ind].cmd_name != NULL;) {
             if (ind == 0)
-                strcpy(line, "commands: ");
+                counter = fprintf(stderr, "commands: ");
             else
-                strcpy(line, "          ");
-            for (; cmds[ind].cmd_name != NULL; ind++) {
-                strcat(line, cmds[ind].cmd_name);
-                if (cmds[ind + 1].cmd_name != NULL)
-                    strcat(line, ", ");
+                counter = fprintf(stderr, "          ");
+            for ( ; cmds[ind].cmd_name != NULL; ind++) {
+                counter += fprintf(stderr, "%s", cmds[ind].cmd_name);
+                if (cmds[ind+1].cmd_name != NULL)
+                    counter += fprintf(stderr, ", ");
                 else
-                    strcat(line, ".");
-                if (strlen(line) >= 70 || cmds[ind + 1].cmd_name == NULL) {
-                    fprintf(stderr, "%s\n", line);
+                    counter += fprintf(stderr, ".");
+                if (counter >= 70 || cmds[ind+1].cmd_name == NULL) {
+                    fprintf(stderr, "\n");
                     ind++;
                     break;
                 }
@@ -715,6 +715,8 @@ static int do_show_options(int mtfd,
 
     if ((fd = open(fname, O_RDONLY)) < 0 || read(fd, buf, 20) < 0) {
         fprintf(stderr, "Can't read the sysfs file '%s'.\n", fname);
+	if (fd >= 0)
+		close(fd);
         return 2;
     }
     close(fd);

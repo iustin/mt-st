@@ -333,8 +333,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
                 continue;
             }
 
-            strcpy(modebuf, comptr);
-            strcat(modebuf, cp);
+            snprintf(defstr, sizeof(defstr)/sizeof(char), "%s%s", comptr, cp);
             *nextdef = c;
 
             if (verbose > 1)
