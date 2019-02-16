@@ -8,20 +8,20 @@
 
 */
 
+#include <ctype.h>
+#include <dirent.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <linux/major.h>
+#include <scsi/sg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <limits.h>
-#include <sys/stat.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <sys/sysmacros.h>
-#include <linux/major.h>
-#include <scsi/sg.h>
+#include <unistd.h>
 
 #include "mtio.h"
 #include "version.h"
@@ -287,8 +287,9 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
         find_string(defstr, "rev", tmprev, LINEMAX);
 
         if (!next_block(dbf, defstr, DEFMAX, '}')) {
-            fprintf(stderr, "End of definition block not found for ('%s', "
-                            "'%s', '%s').\n",
+            fprintf(stderr,
+                    "End of definition block not found for ('%s', "
+                    "'%s', '%s').\n",
                     tmpcomp, tmpprod, tmprev);
             return FALSE;
         }
@@ -317,8 +318,8 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
         for (; *nextdef != '\0';) {
             curdef = nextdef;
             SKIP_WHITE(curdef);
-            for (nextdef++; *nextdef != '\0' &&
-                            (*nextdef != 'm' || strncmp(nextdef, "mode", 2));
+            for (nextdef++;
+                 *nextdef != '\0' && (*nextdef != 'm' || strncmp(nextdef, "mode", 2));
                  nextdef++)
                 ;
             c = *nextdef;
@@ -333,7 +334,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
                 continue;
             }
 
-            snprintf(defstr, sizeof(defstr)/sizeof(char), "%s%s", comptr, cp);
+            snprintf(defstr, sizeof(defstr) / sizeof(char), "%s%s", comptr, cp);
             *nextdef = c;
 
             if (verbose > 1)
@@ -393,8 +394,9 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
             for (t = modebuf; *t == ' ' || *t == '\t'; t++)
                 ;
             if (*t != '\0' && call_nbr <= 1) {
-                fprintf(stderr, "Warning: errors in definition for ('%s', "
-                                "'%s', '%s'):\n%s\n",
+                fprintf(stderr,
+                        "Warning: errors in definition for ('%s', "
+                        "'%s', '%s'):\n%s\n",
                         tmpcomp, tmpprod, tmprev, modebuf);
                 errors++;
             }
@@ -417,8 +419,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
             if (defs->modedefs[i].defined)
                 modes_defined++;
         if (modes_defined == 0) {
-            fprintf(stderr,
-                    "Warning: No modes in definition for ('%s', '%s', '%s').\n",
+            fprintf(stderr, "Warning: No modes in definition for ('%s', '%s', '%s').\n",
                     tmpcomp, tmpprod, tmprev);
             errors++;
         }
@@ -705,7 +706,8 @@ static int set_defs(devdef_tr *defs, char **fnames)
                 op.mt_op = MTSETDRVBUFFER;
                 op.mt_count = MT_ST_SET_LONG_TIMEOUT | defs->long_timeout;
                 if (ioctl(tape, MTIOCTOP, &op) != 0) {
-                    fprintf(stderr, "Can't set device long timeout %d s.\n", defs->long_timeout);
+                    fprintf(stderr, "Can't set device long timeout %d s.\n",
+                            defs->long_timeout);
                 }
             }
 
@@ -713,8 +715,8 @@ static int set_defs(devdef_tr *defs, char **fnames)
                 op.mt_op = MTSETDRVBUFFER;
                 op.mt_count = MT_ST_SET_CLN | defs->cleaning;
                 if (ioctl(tape, MTIOCTOP, &op) != 0) {
-                    fprintf(stderr,
-                            "Can't set cleaning request parameter to %x\n", defs->cleaning);
+                    fprintf(stderr, "Can't set cleaning request parameter to %x\n",
+                            defs->cleaning);
                 }
             }
         }
@@ -754,16 +756,14 @@ static int set_defs(devdef_tr *defs, char **fnames)
         if (clear_set[0] != 0) {
             op.mt_count = MT_ST_CLEARBOOLEANS | clear_set[0];
             if (ioctl(tape, MTIOCTOP, &op) != 0) {
-                fprintf(stderr,
-                        "Can't clear the tape options (bits 0x%x, mode %d).\n",
+                fprintf(stderr, "Can't clear the tape options (bits 0x%x, mode %d).\n",
                         clear_set[0], i);
             }
         }
         if (clear_set[1] != 0) {
             op.mt_count = MT_ST_SETBOOLEANS | clear_set[1];
             if (ioctl(tape, MTIOCTOP, &op) != 0) {
-                fprintf(stderr,
-                        "Can't set the tape options (bits 0x%x, mode %d).\n",
+                fprintf(stderr, "Can't set the tape options (bits 0x%x, mode %d).\n",
                         clear_set[1], i);
             }
         }
@@ -827,9 +827,9 @@ static int define_tape(int tapeno, FILE *dbf, devdef_tr *defptr, int print_non_f
         return FALSE;
     }
     if (verbose > 0)
-        printf(
-        "The manufacturer is '%s', product is '%s', and revision '%s'.\n",
-        company, product, rev);
+        printf("The manufacturer is '%s', product is '%s', and revision "
+               "'%s'.\n",
+               company, product, rev);
 
     if (!find_pars(dbf, company, product, rev, defptr, FALSE)) {
         fprintf(stderr, "Can't find defaults for tape number %d.\n", tapeno);
@@ -905,8 +905,9 @@ int main(int argc, char **argv)
             } else if (isdigit(*argv[argn])) {
                 tapeno = strtol(argv[argn], &convp, 0);
                 if (*argv[argn] != '\0' && *convp != '\0') {
-                    fprintf(stderr, "Invalid tape device index '%s': don't "
-                                    "know how to parse '%s'\n",
+                    fprintf(stderr,
+                            "Invalid tape device index '%s': don't "
+                            "know how to parse '%s'\n",
                             argv[argn], convp);
                     continue;
                 }

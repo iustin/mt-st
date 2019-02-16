@@ -9,19 +9,19 @@
     according to the GNU Public License.
 */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
-#include <sys/types.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <sys/utsname.h>
 #include <sys/sysmacros.h>
+#include <sys/types.h>
+#include <sys/utsname.h>
+#include <unistd.h>
 
 #include "mtio.h"
 #include "version.h"
@@ -383,13 +383,13 @@ static void usage(int explain, int exit_code)
                 counter = fprintf(stderr, "commands: ");
             else
                 counter = fprintf(stderr, "          ");
-            for ( ; cmds[ind].cmd_name != NULL; ind++) {
+            for (; cmds[ind].cmd_name != NULL; ind++) {
                 counter += fprintf(stderr, "%s", cmds[ind].cmd_name);
-                if (cmds[ind+1].cmd_name != NULL)
+                if (cmds[ind + 1].cmd_name != NULL)
                     counter += fprintf(stderr, ", ");
                 else
                     counter += fprintf(stderr, ".");
-                if (counter >= 70 || cmds[ind+1].cmd_name == NULL) {
+                if (counter >= 70 || cmds[ind + 1].cmd_name == NULL) {
                     fprintf(stderr, "\n");
                     ind++;
                     break;
@@ -625,7 +625,8 @@ static int do_status(int mtfd,
             printf("File number=%d, block number=%d, partition=%ld.\n",
                    status.mt_fileno, status.mt_blkno, (status.mt_resid & 0xff));
         else
-            printf("File number=%d, block number=%d.\n", status.mt_fileno, status.mt_blkno);
+            printf("File number=%d, block number=%d.\n", status.mt_fileno,
+                   status.mt_blkno);
         if (status.mt_type == MT_ISSCSI1 || status.mt_type == MT_ISSCSI2 ||
             status.mt_type == MT_ISONSTREAM_SC) {
             dens = (status.mt_dsreg & MT_ST_DENSITY_MASK) >> MT_ST_DENSITY_SHIFT;
@@ -716,8 +717,8 @@ static int do_show_options(int mtfd,
 
     if ((fd = open(fname, O_RDONLY)) < 0 || read(fd, buf, 20) < 0) {
         fprintf(stderr, "Can't read the sysfs file '%s'.\n", fname);
-	if (fd >= 0)
-		close(fd);
+        if (fd >= 0)
+            close(fd);
         return 2;
     }
     close(fd);
