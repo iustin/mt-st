@@ -682,8 +682,9 @@ static int do_status(int mtfd,
 #define ST_NBR_MODES (1 << ST_NBR_MODE_BITS)
 #define ST_MODE_SHIFT (7 - ST_NBR_MODE_BITS)
 #define ST_MODE_MASK ((ST_NBR_MODES - 1) << ST_MODE_SHIFT)
-#define TAPE_NR(minor) \
-    ((((minor) & ~255) >> (ST_NBR_MODE_BITS + 1)) | ((minor) & ~(-1 << ST_MODE_SHIFT)))
+#define TAPE_NR(minor)                              \
+    ((((minor) & ~255) >> (ST_NBR_MODE_BITS + 1)) | \
+     ((minor) & ((1 << ST_MODE_SHIFT) - 1)))
 #define TAPE_MODE(minor) (((minor)&ST_MODE_MASK) >> ST_MODE_SHIFT)
 static const char *st_formats[] = { "",  "r", "k", "s", "l", "t", "o", "u",
                                     "m", "v", "p", "x", "a", "y", "q", "z" };
