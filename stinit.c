@@ -316,6 +316,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
         SKIP_WHITE(comptr);
 
         for (; *nextdef != '\0';) {
+            int tmpsize;
             curdef = nextdef;
             SKIP_WHITE(curdef);
             for (nextdef++;
@@ -334,7 +335,14 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
                 continue;
             }
 
-            snprintf(defstr, sizeof(defstr) / sizeof(char), "%s%s", comptr, cp);
+            if ((tmpsize = snprintf(modebuf, DEFMAX, "%s%s", comptr, cp)) >= DEFMAX) {
+                fprintf(stderr, "Definition too large for ('%s', '%s', '%s'): size %d, maximum is %d\n",
+                        tmpcomp, tmpprod, tmprev, tmpsize, DEFMAX);
+                *nextdef = c;
+                errors++;
+                continue;
+            }
+
             *nextdef = c;
 
             if (verbose > 1)
