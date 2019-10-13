@@ -2,12 +2,14 @@
 # travis-ci configuration file
 #
 language: c
-# no tests or configuration steps for now
+# No tests or configuration steps for now
 script: make && make distcheck
-# build with both gcc and clang
+# Build with both gcc and clang
 compiler:
   - clang
   - gcc
-# just in case the defaults change, we're only interested in Linux:
+# Just in case the defaults change, we're only interested in Linux:
 os:
   - linux
+# Use a recent GCC, as otherwise things seem weird
+dist: bionic
