@@ -72,6 +72,7 @@ The files:
 - `stinit.c`: The stinit source
 - `stinit.8`: The man page for stinit
 - `stinit.def.examples`: example configurations for different devices
+- `mt-st`: bash auto completion file
 
 ## Installation
 
