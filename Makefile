@@ -6,6 +6,7 @@ BINDIR=  $(DESTDIR)$(EXEC_PREFIX)/bin
 DATAROOTDIR= $(DESTDIR)/$(PREFIX)/share
 MANDIR= $(DATAROOTDIR)/man
 DEFTAPE?= /dev/tape
+INSTALL= install
 
 PROGS=mt stinit
 
@@ -38,13 +39,13 @@ version.h: Makefile
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -DDEFTAPE='"$(DEFTAPE)"' -o $@ $<
 
 install: $(PROGS)
-	install -d $(BINDIR)  $(SBINDIR) $(MANDIR) $(MANDIR)/man1 $(MANDIR)/man8
-	install mt $(BINDIR)
-	install -m 444 mt.1 $(MANDIR)/man1
+	$(INSTALL) -d $(BINDIR)  $(SBINDIR) $(MANDIR) $(MANDIR)/man1 $(MANDIR)/man8
+	$(INSTALL) mt $(BINDIR)
+	$(INSTALL) -m 444 mt.1 $(MANDIR)/man1
 	(if [ -f $(MANDIR)/man1/mt.1.gz ] ; then \
 	  rm -f $(MANDIR)/man1/mt.1.gz; gzip $(MANDIR)/man1/mt.1; fi)
-	install stinit $(SBINDIR)
-	install -m 444 stinit.8 $(MANDIR)/man8
+	$(INSTALL) stinit $(SBINDIR)
+	$(INSTALL) -m 444 stinit.8 $(MANDIR)/man8
 	(if [ -f $(MANDIR)/man8/stinit.8.gz ] ; then \
 	  rm -f $(MANDIR)/man8/stinit.8.gz; gzip $(MANDIR)/man8/stinit.8; fi)
 
@@ -54,7 +55,7 @@ dist:
 	trap "rm -rf $$BASE" EXIT && \
 	DIST="$$BASE/$(RELEASEDIR)" && \
 	mkdir "$$DIST" && \
-	install -m 0644 -p -t "$$DIST/" $(DISTFILES) && \
+	$(INSTALL) -m 0644 -p -t "$$DIST/" $(DISTFILES) && \
 	tar czvf $(TARFILE) -C "$$BASE" \
 	  --owner root --group root \
 	  $(RELEASEDIR)
