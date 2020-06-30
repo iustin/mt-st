@@ -1,6 +1,6 @@
 # Changelog
 
-## Changes in version 1.3.1 (Wed, 24 June 2020)
+## Changes in version 1.3.1 (unreleased)
 Small improvements:
 
 - add bash auto completion
