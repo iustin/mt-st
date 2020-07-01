@@ -2,38 +2,38 @@
 #
 
 _mt () {
-  ┆ local cur prev words cword
-  ┆ _init_completion || return
+    local cur prev words cword
+    _init_completion || return
 
-  ┆ #possible commands
-  ┆ commands="weof wset eof fsf fsfm bsf bsfm fsr bsr fss bss rewind offline rewoffl eject retension eod seod seek tell status erase setblk lock unlock load compression setdensity drvbuffer stwrthreshold stoptions stsetoptions stclearoptions defblksize defdensity defdrvbuffer defcompression stsetcln sttimeout stlongtimeout densities setpartition mkpartition partseek asf stshowopt"
+    #possible commands
+    commands="weof wset eof fsf fsfm bsf bsfm fsr bsr fss bss rewind offline rewoffl eject retension eod seod seek tell status erase setblk lock unlock load compression setdensity drvbuffer stwrthreshold stoptions stsetoptions stclearoptions defblksize defdensity defdrvbuffer defcompression stsetcln sttimeout stlongtimeout densities setpartition mkpartition partseek asf stshowopt"
 
-  ┆ COMPREPLY=()
+    COMPREPLY=()
 
-  ┆ case $prev in
-  ┆ ┆ ┆ -v | --version)
-  ┆ ┆ ┆ ┆ ┆ return
-  ┆ ┆ ┆ ┆ ┆ ;;
-  ┆ ┆ ┆ -f )
-  ┆ ┆ ┆ ┆ ┆ if [ -x "$(command -v udevadm)" ]; then
-  ┆ ┆ ┆ ┆ ┆ ┆ ┆ #list tape devices
-  ┆ ┆ ┆ ┆ ┆ ┆ ┆ for d in `udevadm trigger --verbose --dry-run --type=devices --subsystem-match=scsi_tape`; do
-  ┆ ┆ ┆ ┆ ┆ ┆ ┆ ┆ devs+="/dev/${d##*/} "
-  ┆ ┆ ┆ ┆ ┆ ┆ ┆ done
-  ┆ ┆ ┆ ┆ ┆ ┆ ┆ COMPREPLY=($(compgen -W "$devs" -- "$cur"))
-  ┆ ┆ ┆ ┆ ┆ else
-  ┆ ┆ ┆ ┆ ┆ ┆ _filedir
-  ┆ ┆ ┆ ┆ ┆ fi
-  ┆ ┆ ┆ ┆ ┆ return
-  ┆ ┆ ┆ ┆ ┆ ;;
-  ┆ esac
+    case $prev in
+        -v | --version)
+            return
+            ;;
+        -f )
+            if [ -x "$(command -v udevadm)" ]; then
+                #list tape devices
+                for d in `udevadm trigger --verbose --dry-run --type=devices --subsystem-match=scsi_tape`; do
+                  devs+="/dev/${d##*/} "
+                done
+                COMPREPLY=($(compgen -W "$devs" -- "$cur"))
+            else
+              _filedir
+            fi
+            return
+            ;;
+    esac
 
-  ┆ if [[ $cur == -* ]]; then
-  ┆ ┆ ┆ COMPREPLY=($(compgen -W '-f -v' -- "$cur"))
-  ┆ ┆ ┆ return
-  ┆ fi
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '-f -v' -- "$cur"))
+        return
+    fi
 
-  ┆ COMPREPLY=($(compgen -W "$commands" -- "$cur"))
+    COMPREPLY=($(compgen -W "$commands" -- "$cur"))
 
 }
 complete -F _mt mt
