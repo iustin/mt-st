@@ -15,15 +15,11 @@ _mt () {
             return
             ;;
         -f )
-            if [ -x "$(command -v udevadm)" ]; then
-                #list tape devices
-                for d in `udevadm trigger --verbose --dry-run --type=devices --subsystem-match=scsi_tape`; do
-                  devs+="/dev/${d##*/} "
-                done
-                COMPREPLY=($(compgen -W "$devs" -- "$cur"))
-            else
-              _filedir
-            fi
+            #list tape devices
+            for tape in /sys/class/scsi_tape/*;
+              do devs+="/dev/${tape##*/} ";
+            done;
+            COMPREPLY=($(compgen -W "$devs" -- "$cur"))
             return
             ;;
     esac
