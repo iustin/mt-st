@@ -5,6 +5,7 @@ SBINDIR= $(DESTDIR)/$(EXEC_PREFIX)/sbin
 BINDIR=  $(DESTDIR)$(EXEC_PREFIX)/bin
 DATAROOTDIR= $(DESTDIR)/$(PREFIX)/share
 MANDIR= $(DATAROOTDIR)/man
+COMPLETIONINSTALLDIR=$(DESTDIR)/etc/bash_completion.d
 DEFTAPE?= /dev/tape
 INSTALL= install
 
@@ -20,6 +21,7 @@ DISTFILES = \
 	mt.c \
 	mtio.h \
 	README.md \
+	mt-st \
 	stinit.8 \
 	stinit.c \
 	stinit.def.examples \
@@ -39,9 +41,10 @@ version.h: Makefile
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -DDEFTAPE='"$(DEFTAPE)"' -o $@ $<
 
 install: $(PROGS)
-	$(INSTALL) -d $(BINDIR)  $(SBINDIR) $(MANDIR) $(MANDIR)/man1 $(MANDIR)/man8
+	$(INSTALL) -d $(BINDIR)  $(SBINDIR) $(MANDIR) $(MANDIR)/man1 $(MANDIR)/man8 $(COMPLETIONINSTALLDIR)
 	$(INSTALL) mt $(BINDIR)
 	$(INSTALL) -m 444 mt.1 $(MANDIR)/man1
+	$(INSTALL) -m 644 mt-st $(COMPLETIONINSTALLDIR)
 	(if [ -f $(MANDIR)/man1/mt.1.gz ] ; then \
 	  rm -f $(MANDIR)/man1/mt.1.gz; gzip $(MANDIR)/man1/mt.1; fi)
 	$(INSTALL) stinit $(SBINDIR)
@@ -78,10 +81,10 @@ distcheck: dist
 	make install DESTDIR="$$DST" && \
 	numfiles=$$( \
 	find "$$DST" -type f \
-	  \( -name mt -o -name stinit -o -name mt.1 -o -name stinit.8 \) | \
+	  \( -name mt -o -name stinit -o -name mt.1 -o -name stinit.8 -o -name mt-st \) | \
 	  wc -l) && \
-	echo "$$numfiles files installed (4 expected)" && \
-	test "$$numfiles" -eq 4
+	echo "$$numfiles files installed (5 expected)" && \
+	test "$$numfiles" -eq 5
 
 release-tag:
 	git tag -s -m 'Release version $(VERSION).' mt-st-$(VERSION)
