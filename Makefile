@@ -21,7 +21,7 @@ DISTFILES = \
 	mt.c \
 	mtio.h \
 	README.md \
-	mt-st \
+	mt-st.bash_completion \
 	stinit.8 \
 	stinit.c \
 	stinit.def.examples \
@@ -44,7 +44,7 @@ install: $(PROGS)
 	$(INSTALL) -d $(BINDIR)  $(SBINDIR) $(MANDIR) $(MANDIR)/man1 $(MANDIR)/man8 $(COMPLETIONINSTALLDIR)
 	$(INSTALL) mt $(BINDIR)
 	$(INSTALL) -m 444 mt.1 $(MANDIR)/man1
-	$(INSTALL) -m 644 mt-st $(COMPLETIONINSTALLDIR)
+	$(INSTALL) -m 644 mt-st.bash_completion $(COMPLETIONINSTALLDIR)/mt-st
 	(if [ -f $(MANDIR)/man1/mt.1.gz ] ; then \
 	  rm -f $(MANDIR)/man1/mt.1.gz; gzip $(MANDIR)/man1/mt.1; fi)
 	$(INSTALL) stinit $(SBINDIR)
