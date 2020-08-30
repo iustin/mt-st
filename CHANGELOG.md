@@ -1,5 +1,23 @@
 # Changelog
 
+## Changes in version 1.4 (Sun, 30 Aug 2020)
+
+Small bugfixes and improvements release:
+
+- show default tape device in usage output (Iustin Pop).
+- improve parsing of the stinit.def configuration file to detect and
+  flag some of the possible errors, and add tests to prevent
+  regressions (Iustin Pop).
+- add LTO-8 (hrchu) and LTO-7 formatted as M8 (Iustin Pop) density
+  codes.
+- internal code improvements for issues flagged by Coverity scan
+  warnings (Gris Ge).
+- add bash auto-completion file (Paweł Marciniak).
+- don't strip anymore binaries on installation, as nowadays this is
+  the job of package managers (Dan Horák).
+
+Thanks to all the contributors!
+
 ## Changes in version 1.3 (Sun, 01 May 2016)
 
 Small bugfixes and improvements:

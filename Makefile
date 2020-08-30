@@ -28,7 +28,7 @@ DISTFILES = \
 	.dir-locals.el \
 	.clang-format
 
-VERSION=1.3
+VERSION=1.4
 RELEASEDIR=mt-st-$(VERSION)
 TARFILE=mt-st-$(VERSION).tar.gz
 
