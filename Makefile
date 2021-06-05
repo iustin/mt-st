@@ -95,11 +95,20 @@ check: $(PROGS)
 	echo Checking complete stinit parsing
 	( ./stinit -v -v -p -f stinit.def.examples 2>&1 | grep -q 'Mode 1 definition: scsi2logical=1 can-bsr=1 auto-lock=0 two-fms=0 drive-buffering=1 buffer-writes read-ahead=1 async-writes=1 can-partitions=0 fast-eom=1 blocksize=0 sili=1   timeout=900  long-timeout=14400     density=0x44 compression=0' )
 
+# This needs lcov installed, and it's useful for local testing.
+coverage: clean
+	$(MAKE) CFLAGS=-coverage
+	$(MAKE) check
+	lcov --capture --directory . --no-external --output-file coverage.info
+	genhtml coverage.info --output-directory out
+
+
 release-tag:
 	git tag -s -m 'Release version $(VERSION).' mt-st-$(VERSION)
 
 clean:
 	rm -f *~ \#*\# *.o $(PROGS) version.h
+	rm -rf out
 
 reindent:
 	clang-format -i mt.c stinit.c

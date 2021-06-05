@@ -8,4 +8,10 @@
 /mt
 /stinit
 /version.h
-/mt-st-*.tar.gz
+/mt-st-*.tar.gz*
+/out/
+/mt.gcda
+/mt.gcno
+/stinit.gcda
+/stinit.gcno
+/coverage.info
