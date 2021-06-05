@@ -1,0 +1,21 @@
+# Check --version works
+./mt --version
+>>> /VERSION/
+>>>= 0
+
+./mt -v
+>>> /VERSION/
+>>>= 0
+
+./stinit --version
+>>> /VERSION/
+>>>= 0
+
+# Check -h works
+./mt -h
+>>>2 /commands: weof, wset, eof/
+>>>= 0
+
+./stinit -h
+>>>2 /Usage: stinit/
+>>>= 0
