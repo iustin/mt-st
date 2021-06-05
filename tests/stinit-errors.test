@@ -1,0 +1,51 @@
+# Check handling of missing file
+./stinit -p -f no-such-database
+>>>2 /Can't find SCSI tape database/
+>>>= 1
+
+# No file passed
+./stinit -p -f
+>>>2 /Usage:/
+>>>= 1
+
+# Wrong arguments
+./stinit -x
+>>>2 /Usage:/
+>>>= 1
+
+# Illegal ordering of arguments
+./stinit -f stinit.def.examples 1000 -
+>>>2 /Usage:/
+>>>= 1
+
+# Check bad mode
+./stinit -v -v -p -f tests/data/illegal-mode.data
+>>> /Errors found!/
+>>>2 /Illegal mode for/
+>>>= 1
+
+# No modes defined
+#./stinit -v -v -f tests/data/no-modes.data
+#>>> /Errors found!/
+#>>>2 /Illegal mode for/
+#>>>= 1
+
+# Wrong tape device
+./stinit -f stinit.def.examples /dev/no-such-tape
+>>>2 /Can't find tape number for name/
+>>>= 0
+
+# Wrong tape number. Well, this is flaky, but let's hope nobody has
+# 1000 tapes.
+./stinit -f stinit.def.examples 1000
+>>>2 /Can't find any device files for tape 1000/
+>>>= 0
+
+./stinit -f stinit.def.examples 1000
+>>>2 /Definition for '1000' failed/
+>>>= 0
+
+# Wrong tape number (non-numeric).
+./stinit -f stinit.def.examples 1000a
+>>>2 /Invalid tape device index '1000a': don't know how to parse 'a'/
+>>>= 0

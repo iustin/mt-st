@@ -1,0 +1,34 @@
+# Wrong argument
+./mt -x
+>>>2 /usage: /
+>>>= 1
+
+# Missing tape argument
+./mt -f
+>>>2 /usage: /
+>>>= 1
+
+# Unknown command
+./mt to-the-moon
+>>>2 /mt: unknown command "to-the-moon"/
+>>>= 1
+
+# Too many arguments
+./mt rewind 1
+>>>2 /mt: too many arguments for the command 'rewind'\./
+>>>= 1
+
+# Ambigous command
+./mt l
+>>>2 /mt: ambiguous command "l"/
+>>>= 1
+
+# Shortened but not ambiguous command.
+./mt rewi 1
+>>>2 /mt: too many arguments for the command 'rewind'\./
+>>>= 1
+
+# Densities command - the only one not requiring a tape.
+./mt densities
+>>> /LTO-6/
+>>>= 0

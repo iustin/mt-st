@@ -2,6 +2,11 @@
 ./stinit -p -f stinit.def.examples
 >>>= 0
 
+# Extra arguments ignored while file parsing
+./stinit -p -f stinit.def.examples abc
+>>>2 /Extra arguments .* ignored/
+>>>= 0
+
 # Checking complete stinit parsing
 ./stinit -v -v -p -f stinit.def.examples
 >>> /No errors found./

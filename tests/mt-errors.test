@@ -1,0 +1,4 @@
+# Wrong tape argument
+./mt -f /dev/no-such-tape rewind
+>>>2 /no-such-tape: No such file or directory/
+>>>= 1
