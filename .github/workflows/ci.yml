@@ -35,3 +35,33 @@ jobs:
 
       - name: Test creating the release archive
         run: make distcheck
+
+  coverage:
+    name: Check code coverage
+    runs-on: ubuntu-latest
+    env:
+      CC: gcc
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build the code
+        run: make CFLAGS=-coverage
+
+      - name: Run tests under coverage
+        run: make check
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          name: codecov-gcc
+          #fail_ci_if_error: true
+          path_to_write_report: ./codecov-report.txt
+          #verbose: true
+
+      - name: Archive code coverage result
+        uses: 'actions/upload-artifact@v2'
+        with:
+          name: code-coverage-gcc
+          path: codecov-report.txt
