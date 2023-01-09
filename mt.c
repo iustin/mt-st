@@ -176,6 +176,7 @@ static struct densities {
     { 0x27, "Exabyte Mammoth"                },
     { 0x28, "Exabyte Mammoth-2"              },
     { 0x29, "QIC-3080MC"                     },
+    { 0x2a, "IBM 3590 E"                     },
     { 0x30, "AIT-1 or MLR3"                  },
     { 0x31, "AIT-2"                          },
     { 0x32, "AIT-3 or SLR7"                  },
