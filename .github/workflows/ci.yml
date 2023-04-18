@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build the code
         run: make
@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install dependencies
         run: sudo apt-get install -yy shelltestrunner
@@ -56,15 +56,9 @@ jobs:
         run: make check
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
         with:
           name: codecov-gcc
           #fail_ci_if_error: true
-          path_to_write_report: ./codecov-report.txt
-          #verbose: true
-
-      - name: Archive code coverage result
-        uses: 'actions/upload-artifact@v2'
-        with:
-          name: code-coverage-gcc
-          path: codecov-report.txt
+          verbose: true
+          gcov: true
