@@ -1,0 +1,7 @@
+# A non-compressing DAT (DDS-1)
+# The manufacturer, model, and revision strings can be obtained,
+# from the file /proc/scsi/scsi (cat /proc/scsi/scsi).
+manufacturer=XYZ model = "UVW1" {
+scsi2logical=1 can-bsr can-partitions auto-lock
+mode1 blocksize=1k
+mode2 blocksize=1M }

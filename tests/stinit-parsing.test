@@ -12,3 +12,19 @@
 >>> /No errors found./
 >>>2 /Mode 1 definition: scsi2logical=1 can-bsr=1 auto-lock=0 two-fms=0 drive-buffering=1 buffer-writes read-ahead=1 async-writes=1 can-partitions=0 fast-eom=1 blocksize=0 sili=1   timeout=900  long-timeout=14400     density=0x44 compression=0/
 >>>= 0
+
+# Check units
+./stinit -v -v -p -f tests/data/large-units.data
+>>> /No errors found./
+>>>2 /blocksize=1(k|M)/
+>>>= 0
+
+# Incomplete block
+./stinit -p -v -f tests/data/incomplete-block.data
+>>>2 /End of definition block not found for/
+>>>= 1
+
+# Wrong definition
+./stinit -p -v -f tests/data/bad-definition.data
+>>>2 /Warning: errors in definition for/
+>>>= 1

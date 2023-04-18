@@ -1,0 +1,6 @@
+# A non-compressing DAT (DDS-1)
+# The manufacturer, model, and revision strings can be obtained,
+# from the file /proc/scsi/scsi (cat /proc/scsi/scsi).
+manufacturer=XYZ model = "UVW1" {
+mode1 blocksize=
+}
