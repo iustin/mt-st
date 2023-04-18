@@ -11,8 +11,12 @@ Iustin Pop (<iustin@k1024.org>). For copyright information, see the
 For more information, bug reports and the source code repository,
 please see the project homepage at <https://github.com/iustin/mt-st>.
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/iustin/mt-st/CI)](https://github.com/iustin/mt-st/actions/workflows/ci.yml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/iustin/mt-st/ci.yml?branch=main)](https://github.com/iustin/mt-st/actions/workflows/ci.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/iustin/mt-st)](https://codecov.io/gh/iustin/mt-st)
+![Debian package](https://img.shields.io/debian/v/mt-st/sid)
+![Ubuntu package](https://img.shields.io/ubuntu/v/mt-st)
+![GitHub Release Date](https://img.shields.io/github/release-date/iustin/mt-st)
+![GitHub commits since latest release](https://img.shields.io/github/commits-since/iustin/mt-st/latest)
 
 ## mt
 
