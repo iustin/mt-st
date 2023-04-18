@@ -101,7 +101,7 @@ release-tag:
 	git tag -s -m 'Release version $(VERSION).' mt-st-$(VERSION)
 
 clean:
-	rm -f *~ \#*\# *.o $(PROGS) version.h
+	rm -f *~ \#*\# *.o *.gcno *.gcda coverage.info $(PROGS) version.h
 	rm -rf out
 
 reindent:
