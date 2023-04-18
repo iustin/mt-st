@@ -1,13 +1,13 @@
 on:
   # Trigger the workflow on push or
   # pull request, but only for the
-  # master branch.
+  # main branch.
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
   # Weekly run to account for
   # changed dependencies.
   schedule:
