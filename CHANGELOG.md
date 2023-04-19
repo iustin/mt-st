@@ -1,5 +1,14 @@
 # Changelog
 
+## Changes in version 1.6 (Wed, 19 Apr 2023)
+
+This is bugfix release agains 1.5. In between 1.4 and 1.5, the "make
+check" target was migrated to using
+[shelltest](https://github.com/simonmichael/shelltestrunner), but the
+`make dist` and `distcheck` targets were no, so the built archive was
+actually not. This only fixes that and has no functional code changes
+from 1.5.
+
 ## Changes in version 1.5 (Wed, 19 Apr 2023)
 
 Trivial release:
