@@ -1,5 +1,13 @@
 # Changelog
 
+## Changes in version 1.5 (Wed, 19 Apr 2023)
+
+Trivial release:
+
+- add IBM 3590 B/E format to tape densities table (Chris Dinneen).
+
+Thanks!
+
 ## Changes in version 1.4 (Sun, 30 Aug 2020)
 
 Small bugfixes and improvements release:
