@@ -28,6 +28,9 @@ DISTFILES = \
 	.dir-locals.el \
 	.clang-format
 
+TESTFILES = $(wildcard tests/*.test)
+TESTDATAFILES = $(wildcard tests/data/*.data)
+
 VERSION=1.5
 RELEASEDIR=mt-st-$(VERSION)
 TARFILE=mt-st-$(VERSION).tar.gz
@@ -58,7 +61,10 @@ dist:
 	trap "rm -rf $$BASE" EXIT && \
 	DIST="$$BASE/$(RELEASEDIR)" && \
 	mkdir "$$DIST" && \
-	$(INSTALL) -m 0644 -p -t "$$DIST/" $(DISTFILES) && \
+	mkdir "$$DIST/tests" && mkdir "$$DIST/tests/data" && \
+	  $(INSTALL) -m 0644 -p -t "$$DIST/" $(DISTFILES) && \
+	  $(INSTALL) -m 0644 -p -t "$$DIST/tests" $(TESTFILES) && \
+	  $(INSTALL) -m 0644 -p -t "$$DIST/tests/data" $(TESTDATAFILES) && \
 	tar czvf $(TARFILE) -C "$$BASE" \
 	  --owner root --group root \
 	  $(RELEASEDIR)
@@ -71,12 +77,7 @@ distcheck: dist
 	tar xvf $(TARFILE) -C "$$SRC" && \
 	cd "$$SRC/$(RELEASEDIR)" && \
 	make CFLAGS="-Wall -Wextra -Werror" && \
-	echo Checking version output && \
-	./mt --version && ./stinit --version && \
-	echo Checking parse status && \
-	./stinit -p -f stinit.def.examples && \
-	echo Checking complete stinit parsing && \
-	( ./stinit -v -v -p -f stinit.def.examples 2>&1 | grep -q 'Mode 1 definition: scsi2logical=1 can-bsr=1 auto-lock=0 two-fms=0 drive-buffering=1 buffer-writes read-ahead=1 async-writes=1 can-partitions=0 fast-eom=1 blocksize=0 sili=1   timeout=900  long-timeout=14400     density=0x44 compression=0' ) && \
+	make check && \
 	make dist && \
 	make install DESTDIR="$$DST" && \
 	numfiles=$$( \
