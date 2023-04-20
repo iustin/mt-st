@@ -76,7 +76,7 @@ jobs:
         # These are the various sanitizers from https://github.com/google/sanitizers:
         cflags:
           - '-fsanitize=address -O1 -fno-omit-frame-pointer -g'
-          - '-fsanitize=undefined -fsanitize=memory -fsanitize-memory-track-origins -fPIE -pie -fno-omit-frame-pointer -g -O2'
+          - '-fsanitize=memory -fsanitize-memory-track-origins -fPIE -pie -fno-omit-frame-pointer -g -O2'
           - '-fsanitize=undefined'
 
       fail-fast: false
