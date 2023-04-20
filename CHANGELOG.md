@@ -1,5 +1,15 @@
 # Changelog
 
+## Changes in version 1.7 (Thu, 20 Apr 2023)
+
+Fixes a single bug in stinit parsing of invalid definitions. This is a
+trivial bug, and only affects config files manually installed by root,
+so the impact should be minimal.
+
+The bug also does not appear on amd64/x86, but (in Debian) was only
+triggered (as undefined behaviour) on mips64el, arm64 and s390x,
+likely due to different platform behaviour.
+
 ## Changes in version 1.6 (Wed, 19 Apr 2023)
 
 This is bugfix release agains 1.5. In between 1.4 and 1.5, the "make

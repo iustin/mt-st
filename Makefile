@@ -31,7 +31,7 @@ DISTFILES = \
 TESTFILES = $(wildcard tests/*.test)
 TESTDATAFILES = $(wildcard tests/data/*.data)
 
-VERSION=1.6
+VERSION=1.7
 RELEASEDIR=mt-st-$(VERSION)
 TARFILE=mt-st-$(VERSION).tar.gz
 
