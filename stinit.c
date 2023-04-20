@@ -139,9 +139,13 @@ static char *find_string(char *s, char *target, char *buf, int buflen)
                     cp++;
                     for (cp2 = cp; *cp2 != '"' && *cp2 != '\0'; cp2++)
                         ;
-                } else
-                    for (cp2 = cp + 1; isalnum(*cp2) || *cp2 == '-'; cp2++)
-                        ;
+                } else {
+                    if (*cp == '\0')
+                        return NULL;
+                    else
+                        for (cp2 = cp + 1; isalnum(*cp2) || *cp2 == '-'; cp2++)
+                            ;
+                }
                 if (*cp2 == '\0')
                     return NULL;
                 have_arg = TRUE;
