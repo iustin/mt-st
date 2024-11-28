@@ -776,6 +776,6 @@ static void test_error(int mtfd, cmdef_tr *cmd)
     if ((cmd->error_tests & ET_ONLINE) && !GMT_ONLINE(status.mt_gstat))
         fprintf(stderr,
                 "mt: The device is offline (not powered on, no tape ?).\n");
-    if ((cmd->error_tests & ET_WPROT) && !GMT_WR_PROT(status.mt_gstat))
+    if ((cmd->error_tests & ET_WPROT) && GMT_WR_PROT(status.mt_gstat))
         fprintf(stderr, "mt: The tape is write-protected.\n");
 }
