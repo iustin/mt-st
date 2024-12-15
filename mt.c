@@ -250,6 +250,7 @@ static struct booleans {
     { "can-partitions", MT_ST_CAN_PARTITIONS, "drive can handle partitioned tapes"           },
     { "scsi2logical",   MT_ST_SCSI2LOGICAL,   "logical block addresses used with SCSI-2"     },
     { "no-wait",        MT_ST_NOWAIT,         "immediate mode for rewind, etc."              },
+    { "weof-no-wait",	MT_ST_NOWAIT_EOF,     "immediate mode for writing filemarks"	     },
 #ifdef MT_ST_SYSV
     { "sysv",           MT_ST_SYSV,           "enable the SystemV semantics"                 },
 #endif

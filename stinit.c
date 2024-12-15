@@ -58,6 +58,7 @@ typedef struct _devdef_tr {
     int long_timeout;
     int cleaning;
     int nowait;
+    int weof_nowait;
     int sili;
     modepar_tr modedefs[4];
 } devdef_tr;
@@ -259,6 +260,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
     defs->long_timeout = (-1);
     defs->cleaning = (-1);
     defs->nowait = (-1);
+    defs->weof_nowait = (-1);
     defs->sili = (-1);
     for (i = 0; i < NBR_MODES; i++) {
         defs->modedefs[i].defined = FALSE;
@@ -368,6 +370,8 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
                 defs->cleaning = num_arg(t);
             if ((t = find_string(modebuf, "no-w", line, LINEMAX)) != NULL)
                 defs->nowait = num_arg(t);
+            if ((t = find_string(modebuf, "weof-n", line, LINEMAX)) != NULL)
+                defs->weof_nowait = num_arg(t);
             if ((t = find_string(modebuf, "sili", line, LINEMAX)) != NULL)
                 defs->sili = num_arg(t);
 
@@ -738,6 +742,8 @@ static int set_defs(devdef_tr *defs, char **fnames)
         clear_set[0] = clear_set[1] = 0;
         if (defs->nowait >= 0)
             clear_set[defs->nowait != 0] |= MT_ST_NOWAIT;
+        if (defs->weof_nowait >= 0)
+            clear_set[defs->weof_nowait != 0] |= MT_ST_NOWAIT_EOF;
         if (defs->sili >= 0)
             clear_set[defs->sili != 0] |= MT_ST_SILI;
         if (defs->modedefs[i].buffer_writes >= 0)
