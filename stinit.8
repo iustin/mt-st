@@ -263,10 +263,9 @@ The long timeout for the device is set to
 seconds.
 .SH RETURN VALUE
 The program exits with value one if the command line is incorrect, the
-definition file is not found, or option -p is given and parsing the
-definition file fails. In all other cases the return value is
-zero (i.e., failing of initialization is not currently signaled by
-the return value).
+definition file is not found, option -p is given and parsing the
+definition file fails, or defining one or more of the options fails
+when the tape number(s) are given on command line.
 .SH RESTRICTIONS
 With the exception of the -p option, the program can be used only by
 the superuser. This is because the program uses ioctls allowed only

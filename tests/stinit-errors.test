@@ -39,11 +39,11 @@
 # 1000 tapes.
 ./stinit -f stinit.def.examples 1000
 >>>2 /Can't find any device files for tape 1000/
->>>= 0
+>>>= 1
 
 ./stinit -f stinit.def.examples 1000
 >>>2 /Definition for '1000' failed/
->>>= 0
+>>>= 1
 
 # Wrong tape number (non-numeric).
 ./stinit -f stinit.def.examples 1000a
