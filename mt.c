@@ -145,12 +145,12 @@ static struct densities {
      * RLL: Run Length Limited
      */
     { 0x00, "default"                        },
-    { 0x01, "NRZI (800 bpi)"                 },
-    { 0x02, "PE (1600 bpi)"                  },
-    { 0x03, "GCR (6250 bpi)"                 },
+    { 0x01, "NRZI (800 bpi) 9 Track Reel"    },
+    { 0x02, "PE (1600 bpi) 9 Track Reel"     },
+    { 0x03, "GCR (6250 bpi) 9 Track Reel"    },
     { 0x04, "QIC-11"                         },
     { 0x05, "QIC-45/60 (GCR, 8000 bpi)"      },
-    { 0x06, "PE (3200 bpi)"                  },
+    { 0x06, "PE (3200 bpi) 9 Track Reel"     },
     { 0x07, "IMFM (6400 bpi)"                },
     { 0x08, "GCR (8000 bpi)"                 },
     { 0x09, "GCR (37871 bpi)"                },
