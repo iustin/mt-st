@@ -135,6 +135,15 @@ static struct densities {
     char *name;
 } density_tbl[] = {
     /* clang-format off */
+    /* Note:
+     * NZRI: Non-Return to Zero, change on ones
+     * GCR: Group Code Recording
+     * PE: Phase Encoding
+     * IMFM: Inverted Modified Frequency Modulation
+     * MFM: Modified Frequency Modulation
+     * DDS: DAT Data Storage
+     * RLL: Run Length Limited
+     */
     { 0x00, "default"                        },
     { 0x01, "NRZI (800 bpi)"                 },
     { 0x02, "PE (1600 bpi)"                  },
