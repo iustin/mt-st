@@ -144,7 +144,7 @@ static struct densities {
     { 0x06, "PE (3200 bpi)"                  },
     { 0x07, "IMFM (6400 bpi)"                },
     { 0x08, "GCR (8000 bpi)"                 },
-    { 0x09, "GCR (37871 bpi)"                },
+    { 0x09, "3490E, GCR (37871 bpi)"         },
     { 0x0a, "MFM (6667 bpi)"                 },
     { 0x0b, "PE (1600 bpi)"                  },
     { 0x0c, "GCR (12960 bpi)"                },
