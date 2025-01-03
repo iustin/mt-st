@@ -225,7 +225,7 @@ static struct densities {
     { 0x90, "SDLT110 uncompr/EXB-8205 compr" },
     { 0x91, "SDLT110 compressed"             },
     { 0x92, "SDLT160 uncompressed"           },
-    { 0x93, "SDLT160 comprssed"              }
+    { 0x93, "SDLT160 compressed"             }
     /* clang-format on */
 };
 
