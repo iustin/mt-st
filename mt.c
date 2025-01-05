@@ -135,7 +135,7 @@ static struct densities {
     char *name;
 } density_tbl[] = {
     /* clang-format off */
-    /* Note:
+    /* Information taken from https://www.t10.org/ftp/x3t9.2/document.93/93-013r0.pdf:
      * NZRI: Non-Return to Zero, change on ones
      * GCR: Group Code Recording
      * PE: Phase Encoding
@@ -697,7 +697,7 @@ static int do_status(int mtfd,
 #define TAPE_NR(minor)                              \
     ((((minor) & ~255) >> (ST_NBR_MODE_BITS + 1)) | \
      ((minor) & ((1 << ST_MODE_SHIFT) - 1)))
-#define TAPE_MODE(minor) (((minor)&ST_MODE_MASK) >> ST_MODE_SHIFT)
+#define TAPE_MODE(minor) (((minor) & ST_MODE_MASK) >> ST_MODE_SHIFT)
 static const char *st_formats[] = { "",  "r", "k", "s", "l", "t", "o", "u",
                                     "m", "v", "p", "x", "a", "y", "q", "z" };
 
