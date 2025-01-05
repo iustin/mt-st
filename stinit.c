@@ -700,18 +700,17 @@ static int set_defs(devdef_tr *defs, char **fnames)
                 op.mt_op = MTREW;
                 op.mt_count = 1;
                 if (ioctl(tape, MTIOCTOP, &op) != 0) {
-		    fails++;
-		    fprintf(stderr, "Rewind of %s fails.\n", fnames[i]);
-		}
+                    fails++;
+                    fprintf(stderr, "Rewind of %s fails.\n", fnames[i]);
+                }
             }
 
             if (defs->drive_buffering >= 0) {
                 op.mt_op = MTSETDRVBUFFER;
                 op.mt_count = MT_ST_DEF_DRVBUFFER | defs->drive_buffering;
                 if (ioctl(tape, MTIOCTOP, &op) != 0) {
-		    fails++;
-                    fprintf(stderr, "Can't set drive buffering to %d.\n",
-			    defs->drive_buffering);
+                    fails++;
+                    fprintf(stderr, "Can't set drive buffering to %d.\n", defs->drive_buffering);
                 }
             }
 
@@ -719,9 +718,8 @@ static int set_defs(devdef_tr *defs, char **fnames)
                 op.mt_op = MTSETDRVBUFFER;
                 op.mt_count = MT_ST_SET_TIMEOUT | defs->timeout;
                 if (ioctl(tape, MTIOCTOP, &op) != 0) {
-		    fails++;
-                    fprintf(stderr, "Can't set device timeout %d s.\n",
-			    defs->timeout);
+                    fails++;
+                    fprintf(stderr, "Can't set device timeout %d s.\n", defs->timeout);
                 }
             }
 
@@ -729,7 +727,7 @@ static int set_defs(devdef_tr *defs, char **fnames)
                 op.mt_op = MTSETDRVBUFFER;
                 op.mt_count = MT_ST_SET_LONG_TIMEOUT | defs->long_timeout;
                 if (ioctl(tape, MTIOCTOP, &op) != 0) {
-		    fails++;
+                    fails++;
                     fprintf(stderr, "Can't set device long timeout %d s.\n",
                             defs->long_timeout);
                 }
@@ -739,7 +737,7 @@ static int set_defs(devdef_tr *defs, char **fnames)
                 op.mt_op = MTSETDRVBUFFER;
                 op.mt_count = MT_ST_SET_CLN | defs->cleaning;
                 if (ioctl(tape, MTIOCTOP, &op) != 0) {
-		    fails++;
+                    fails++;
                     fprintf(stderr, "Can't set cleaning request parameter to %x\n",
                             defs->cleaning);
                 }
@@ -783,7 +781,7 @@ static int set_defs(devdef_tr *defs, char **fnames)
         if (clear_set[0] != 0) {
             op.mt_count = MT_ST_CLEARBOOLEANS | clear_set[0];
             if (ioctl(tape, MTIOCTOP, &op) != 0) {
-		fails++;
+                fails++;
                 fprintf(stderr, "Can't clear the tape options (bits 0x%x, mode %d).\n",
                         clear_set[0], i);
             }
@@ -791,7 +789,7 @@ static int set_defs(devdef_tr *defs, char **fnames)
         if (clear_set[1] != 0) {
             op.mt_count = MT_ST_SETBOOLEANS | clear_set[1];
             if (ioctl(tape, MTIOCTOP, &op) != 0) {
-		fails++;
+                fails++;
                 fprintf(stderr, "Can't set the tape options (bits 0x%x, mode %d).\n",
                         clear_set[1], i);
             }
@@ -800,7 +798,7 @@ static int set_defs(devdef_tr *defs, char **fnames)
         if (defs->modedefs[i].blocksize >= 0) {
             op.mt_count = MT_ST_DEF_BLKSIZE | defs->modedefs[i].blocksize;
             if (ioctl(tape, MTIOCTOP, &op) != 0) {
-		fails++;
+                fails++;
                 fprintf(stderr, "Can't set blocksize %d for mode %d.\n",
                         defs->modedefs[i].blocksize, i);
             }
@@ -808,7 +806,7 @@ static int set_defs(devdef_tr *defs, char **fnames)
         if (defs->modedefs[i].density >= 0) {
             op.mt_count = MT_ST_DEF_DENSITY | defs->modedefs[i].density;
             if (ioctl(tape, MTIOCTOP, &op) != 0) {
-		fails++;
+                fails++;
                 fprintf(stderr, "Can't set density %x for mode %d.\n",
                         defs->modedefs[i].density, i);
             }
@@ -816,7 +814,7 @@ static int set_defs(devdef_tr *defs, char **fnames)
         if (defs->modedefs[i].compression >= 0) {
             op.mt_count = MT_ST_DEF_COMPRESSION | defs->modedefs[i].compression;
             if (ioctl(tape, MTIOCTOP, &op) != 0) {
-		fails++;
+                fails++;
                 fprintf(stderr, "Can't set compression %d for mode %d.\n",
                         defs->modedefs[i].compression, i);
             }
@@ -949,8 +947,8 @@ int main(int argc, char **argv)
             }
             if (!define_tape(tapeno, dbf, &defs, TRUE)) {
                 fprintf(stderr, "Definition for '%s' failed.\n", argv[argn]);
-		retval = 1;
-	    }
+                retval = 1;
+            }
         }
     } else { /* Initialize all SCSI tapes */
         for (tapeno = 0; tapeno < MAX_TAPES; tapeno++)
