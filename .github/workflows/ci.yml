@@ -12,6 +12,8 @@ on:
   # changed dependencies.
   schedule:
     - cron: '17 04 * * 0'
+  # Manual trigger
+  workflow_dispatch:
 
 name: CI
 jobs:

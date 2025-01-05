@@ -8,6 +8,8 @@ on:
     branches: [main]
   schedule:
     - cron: '0 5 * * 1'
+  # Manual run:
+  workflow_dispatch:
 
 jobs:
   analyze:
