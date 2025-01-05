@@ -11,7 +11,7 @@ on:
   # Weekly run to account for
   # changed dependencies.
   schedule:
-    - cron: '17 04 * * 0'
+    - cron: "17 04 * * 0"
   # Manual trigger
   workflow_dispatch:
 
@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        compiler: ['gcc', 'clang']
+        compiler: ["gcc", "clang"]
       fail-fast: false
     env:
       CC: ${{ matrix.compiler }}
@@ -74,12 +74,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        compiler: ['clang']
+        compiler: ["clang"]
         # These are the various sanitizers from https://github.com/google/sanitizers:
         cflags:
-          - '-fsanitize=address -O1 -fno-omit-frame-pointer -g'
-          - '-fsanitize=memory -fsanitize-memory-track-origins -fPIE -pie -fno-omit-frame-pointer -g -O2'
-          - '-fsanitize=undefined'
+          - "-fsanitize=address -O1 -fno-omit-frame-pointer -g"
+          - "-fsanitize=memory -fsanitize-memory-track-origins -fPIE -pie -fno-omit-frame-pointer -g -O2"
+          - "-fsanitize=undefined"
 
       fail-fast: false
     env:
