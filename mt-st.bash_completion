@@ -7,6 +7,7 @@ _mt () {
 
     #possible commands
     commands="weof wset eof fsf fsfm bsf bsfm fsr bsr fss bss rewind offline rewoffl eject retension eod seod seek tell status erase setblk lock unlock load compression setdensity drvbuffer stwrthreshold stoptions stsetoptions stclearoptions defblksize defdensity defdrvbuffer defcompression stsetcln sttimeout stlongtimeout densities setpartition mkpartition partseek asf stshowoptions"
+    stoptions="buffer-writes async-writes read-ahead debug two-fms fast-eod no-wait weof-no-wait auto-lock def-writes can-bsr no-blklimits can-partitions scsi2logical sili sysv"
 
     COMPREPLY=()
 
@@ -22,7 +23,18 @@ _mt () {
             COMPREPLY=($(compgen -W "$devs" -- "$cur"))
             return
             ;;
+	stsetoptions)
+	    # show list of stoptions
+	    COMPREPLY=($(compgen -W "$stoptions" -- "$cur"))
+            return
+            ;;
     esac
+
+    # if "$prev" is a substring of "$stoptions" show more "$stoptions"
+    if [[ "$stoptions" == *"$prev"* ]]; then
+	    COMPREPLY=($(compgen -W "$stoptions" -- "$cur"))
+            return
+    fi
 
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '-f -v' -- "$cur"))
