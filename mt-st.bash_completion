@@ -6,7 +6,7 @@ _mt () {
     _init_completion || return
 
     #possible commands
-    commands="weof wset eof fsf fsfm bsf bsfm fsr bsr fss bss rewind offline rewoffl eject retension eod seod seek tell status erase setblk lock unlock load compression setdensity drvbuffer stwrthreshold stoptions stsetoptions stclearoptions defblksize defdensity defdrvbuffer defcompression stsetcln sttimeout stlongtimeout densities setpartition mkpartition partseek asf stshowopt"
+    commands="weof wset eof fsf fsfm bsf bsfm fsr bsr fss bss rewind offline rewoffl eject retension eod seod seek tell status erase setblk lock unlock load compression setdensity drvbuffer stwrthreshold stoptions stsetoptions stclearoptions defblksize defdensity defdrvbuffer defcompression stsetcln sttimeout stlongtimeout densities setpartition mkpartition partseek asf stshowoptions"
 
     COMPREPLY=()
 
