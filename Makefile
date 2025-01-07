@@ -94,8 +94,8 @@ check: $(PROGS)
 coverage: clean
 	$(MAKE) CFLAGS=-coverage
 	$(MAKE) check
-	lcov --capture --directory . --no-external --output-file coverage.info
-	genhtml coverage.info --output-directory out
+	lcov --capture --directory . --no-external --output-file lcov.info
+	genhtml lcov.info --output-directory out
 
 
 release-tag:
