@@ -2,3 +2,18 @@
 ./mt -f /dev/no-such-tape rewind
 >>>2 /no-such-tape: No such file or directory/
 >>>= 1
+
+# Wrong file in show options
+./mt -f tests/data/not-a-char-device stshowoptions
+>>>2 /mt: not a character device/
+>>>= 1
+
+# /dev/null is not a tape device. Error message is ugly, though.
+./mt -f /dev/null stshowoptions
+>>>2 /Can't read the sysfs file '\/sys\/class\/scsi_tape/
+>>>= 2
+
+# /dev/null is not a tape device, so status fails.
+./mt -f /dev/null status
+>>>2 /Inappropriate ioctl for device/
+>>>= 2
