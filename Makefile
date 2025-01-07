@@ -29,7 +29,7 @@ DISTFILES = \
 	.clang-format
 
 TESTFILES = $(wildcard tests/*.test)
-TESTDATAFILES = $(wildcard tests/data/*.data)
+TESTDATAFILES = $(wildcard tests/data/*)
 
 VERSION=1.7
 RELEASEDIR=mt-st-$(VERSION)
