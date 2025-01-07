@@ -61,12 +61,12 @@ jobs:
         run: make check
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           name: codecov-gcc
-          #fail_ci_if_error: true
+          fail_ci_if_error: true
           verbose: true
-          gcov: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   sanitizers:
     name: Test with clang sanitizers
