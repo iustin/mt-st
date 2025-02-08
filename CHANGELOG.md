@@ -1,5 +1,22 @@
 # Changelog
 
+## Changes in version 1.8 (Upcoming Release)
+
+After almost two years, a number of minor fixes and improvements have accumulated:
+
+- A number of density code updates: LTO-9, 9track Reels, IBM 3480 and 3490E
+  (from Chris Dinneen) and IBM 3592 (Kai Mäkisara)
+- Fix write protect reporting (Kai Mäkisara)
+- Implement support for the `MT_ST_NOWAIT_EOF` flag, via the new `weof-no-wait`
+  for stinit (Kai Mäkisara)
+- While at it, correctly report errors if some options cannot be set, rather
+  than pretending all is good (also Kai Mäkisara)
+- Improve the bash completion code to handle option completion better (Chris
+  Dinneen)
+- Very minor build system improvements and coverage extension (Iustin Pop)
+
+Thanks Kai and Chris for the many improvements!
+
 ## Changes in version 1.7 (Thu, 20 Apr 2023)
 
 Fixes a single bug in stinit parsing of invalid definitions. This is a
