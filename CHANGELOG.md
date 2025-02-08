@@ -1,6 +1,6 @@
 # Changelog
 
-## Changes in version 1.8 (Upcoming Release)
+## Changes in version 1.8 (Sat, 08 Feb 2025)
 
 After almost two years, a number of minor fixes and improvements have accumulated:
 
