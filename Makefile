@@ -99,7 +99,7 @@ coverage: clean
 
 
 release-tag:
-	git tag -s -m 'Release version $(VERSION).' mt-st-$(VERSION)
+	git tag -s -m 'Release version $(VERSION)' v-$(VERSION)
 
 clean:
 	rm -f *~ \#*\# *.o *.gcno *.gcda coverage.info $(PROGS) version.h
