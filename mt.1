@@ -94,7 +94,10 @@ setmarks at current position (only SCSI tape).
 .IP erase
 Erase the tape. Note that this is a long erase, which on modern
 (high-capacity) tapes can take many hours, and which usually can't be
-aborted.
+aborted. Setting 
+.I count
+to zero performs a non-secure quick erase of the tape. Quick erase
+support depends on drive type.
 .IP status
 Print status information about the tape unit. (If the density code is
 "no translation" in the status output, this does not affect working of the
