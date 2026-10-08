@@ -449,7 +449,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
 
 static int sg_io_errcheck(struct sg_io_hdr *hdp)
 {
-    if ((hdp->status & 0x7e) == 0 || hdp->host_status == 0 || hdp->driver_status == 0)
+    if ((hdp->status & 0x7e) == 0 && hdp->host_status == 0 && hdp->driver_status == 0)
         return 0;
     return EIO;
 }
