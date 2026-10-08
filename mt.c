@@ -136,7 +136,7 @@ static struct densities {
 } density_tbl[] = {
     /* clang-format off */
     /* Information taken from https://www.t10.org/ftp/x3t9.2/document.93/93-013r0.pdf:
-     * NZRI: Non-Return to Zero, change on ones
+     * NRZI: Non-Return to Zero Inverted, change on ones
      * GCR: Group Code Recording
      * PE: Phase Encoding
      * IMFM: Inverted Modified Frequency Modulation
@@ -265,9 +265,9 @@ static struct booleans {
     { "can-partitions", MT_ST_CAN_PARTITIONS, "drive can handle partitioned tapes"           },
     { "scsi2logical",   MT_ST_SCSI2LOGICAL,   "logical block addresses used with SCSI-2"     },
     { "no-wait",        MT_ST_NOWAIT,         "immediate mode for rewind, etc."              },
-    { "weof-no-wait",	MT_ST_NOWAIT_EOF,     "immediate mode for writing filemarks"	     },
+    { "weof-no-wait",   MT_ST_NOWAIT_EOF,     "immediate mode for writing filemarks"         },
 #ifdef MT_ST_SYSV
-    { "sysv",           MT_ST_SYSV,           "enable the SystemV semantics"                 },
+    { "sysv",           MT_ST_SYSV,           "enable the System V semantics"                },
 #endif
     { "sili",           MT_ST_SILI,           "enable SILI for variable block mode"          },
     { NULL,             0,                    NULL                                           }
@@ -460,7 +460,7 @@ static int do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 }
 
 
-/* The the drive buffering and other things with this (highly overloaded)
+/* Set the drive buffering and other things with this (highly overloaded)
    ioctl function. (See also do_options below.) */
 static int do_drvbuffer(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 {
