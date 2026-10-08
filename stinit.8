@@ -128,7 +128,7 @@ This keyword defines the string that must match the
 .B product identification
 returned by the device.
 .IP revision=
-This keyword matched the string that must match the
+This keyword matches the string that must match the
 .B product revision level
 returned by the device.
 .PP
@@ -151,7 +151,7 @@ notation or hexadecimal notation (using the prefix 0x).
 .IP drive-[buffering]=value
 The drive's buffering parameter is set to
 .I value.
-This parameter if common for all modes.
+This parameter is common for all modes.
 .IP cleaning
 The cleaning request notifying parameter is set to
 .I value
@@ -207,7 +207,7 @@ The tape drive door is locked automatically when the device file is
 opened if
 .I value
 is non-zero.
-.IP fast[-eom]=value
+.IP fast[-eod]=value
 The MTEOM command is performed using the SCSI command that spaces
 directly to the end of medium if
 .I value
