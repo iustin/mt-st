@@ -270,7 +270,6 @@ static struct booleans {
     { "sysv",           MT_ST_SYSV,           "enable the SystemV semantics"                 },
 #endif
     { "sili",           MT_ST_SILI,           "enable SILI for variable block mode"          },
-    { "cleaning",       MT_ST_SET_CLN,        "set the cleaning bit location and mask"       },
     { NULL,             0,                    NULL                                           }
     /* clang-format on */
 };
