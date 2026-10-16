@@ -732,7 +732,7 @@ static int do_show_options(int mtfd,
     tapeno = TAPE_NR(tapeminor);
     tapemode = TAPE_MODE(tapeminor);
     tapemode <<= 4 - ST_NBR_MODE_BITS; /* from st.c */
-    sprintf(fname, "/sys/class/scsi_tape/st%d%s/options", tapeno, st_formats[tapemode]);
+    snprintf(fname, sizeof(fname), "/sys/class/scsi_tape/st%d%s/options", tapeno, st_formats[tapemode]);
     /* printf("Trying file '%s' (st_rdev 0x%lx).\n", fname, stat.st_rdev); */
 
     if ((fd = open(fname, O_RDONLY)) < 0 || read(fd, buf, 20) < 0) {
