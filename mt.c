@@ -303,7 +303,7 @@ int main(int argc, char **argv)
                 version();
                 break;
             case '-':
-                if (*(argv[argn] + 1) == '-' && *(argv[argn] + 2) == 'v') {
+                if (strcmp(argv[argn], "--version") == 0) {
                     version();
                 }
             /* Fall through */
