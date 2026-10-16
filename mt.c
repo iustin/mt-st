@@ -124,7 +124,7 @@ static cmdef_tr cmds[] = {
     { "mkpartition",    MTMKPART,       do_standard,     0,                      FD_RDWR,   ONE_ARG,   ET_ONLINE            },
     { "partseek",       0,              do_partseek,     0,                      FD_RDONLY, TWO_ARGS,  ET_ONLINE            },
     { "asf",            0,              do_asf,          MTREW,                  FD_RDONLY, ONE_ARG,   ET_ONLINE            },
-    { "stshowoptions",  0,              do_show_options, 0,                      FD_RDONLY, ONE_ARG,   0                    },
+    { "stshowoptions",  0,              do_show_options, 0,                      FD_RDONLY, NO_ARGS,   0                    },
     { NULL,             0,              0,               0,                      NO_FD,     NO_ARGS,   0                    },
     /* clang-format on */
 };
