@@ -32,12 +32,12 @@ _mt () {
 
     # if "$prev" is a word in "$stoptions" show more "$stoptions"
     if [[ " $stoptions " == *" $prev "* ]]; then
-            COMPREPLY=($(compgen -W "$stoptions" -- "$cur"))
-            return
+        COMPREPLY=($(compgen -W "$stoptions" -- "$cur"))
+        return
     fi
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '-f -t -h -v --help --version' -- "$cur"))
+        COMPREPLY=($(compgen -W '-f -t -h -v --version' -- "$cur"))
         return
     fi
 
