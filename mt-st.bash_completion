@@ -15,7 +15,7 @@ _mt () {
         -v | --version)
             return
             ;;
-        -f )
+        -f | -t )
             #list tape devices
             for tape in /sys/class/scsi_tape/*;
               do devs+="/dev/${tape##*/} ";
@@ -23,21 +23,21 @@ _mt () {
             COMPREPLY=($(compgen -W "$devs" -- "$cur"))
             return
             ;;
-	stsetoptions)
-	    # show list of stoptions
-	    COMPREPLY=($(compgen -W "$stoptions" -- "$cur"))
+        stoptions|stsetoptions|stclearoptions)
+            # show list of stoptions
+            COMPREPLY=($(compgen -W "$stoptions" -- "$cur"))
             return
             ;;
     esac
 
-    # if "$prev" is a substring of "$stoptions" show more "$stoptions"
-    if [[ "$stoptions" == *"$prev"* ]]; then
-	    COMPREPLY=($(compgen -W "$stoptions" -- "$cur"))
-            return
+    # if "$prev" is a word in "$stoptions" show more "$stoptions"
+    if [[ " $stoptions " == *" $prev "* ]]; then
+        COMPREPLY=($(compgen -W "$stoptions" -- "$cur"))
+        return
     fi
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '-f -v' -- "$cur"))
+        COMPREPLY=($(compgen -W '-f -t -h -v --version' -- "$cur"))
         return
     fi
 
