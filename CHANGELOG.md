@@ -1,5 +1,76 @@
 # Changelog
 
+## Unreleased changes
+
+This release fixes a number of bugs in stinit's definition file
+parsing, makes argument checking stricter in both tools, and includes
+documentation and bash completion cleanups. Some of the fixes change
+which settings stinit applies to the drives, so please read the
+significant changes below.
+
+### Significant changes
+
+**stinit: values directly before a closing brace are no longer
+ignored.** A value placed directly before the closing brace of a
+definition, as in `mode1 blocksize=0 compression=1}`, was silently
+dropped: `stinit -p` reported an error, but a normal run simply didn't
+apply that setting. Such values are now parsed correctly, so settings
+that were previously ignored will now be applied to the drive. If your
+`stinit.def` has definitions written this way, check that these settings
+are what you want (Iustin Pop).
+
+**stinit: failures of the SCSI INQUIRY command are now detected.** The
+status of the INQUIRY command, used to identify the drive, is now
+checked correctly; previously, a failed command was not detected, and
+stinit went on using whatever data it got back. As a consequence, stinit
+may now refuse to configure a drive whose INQUIRY command reports an
+error (Chris Dinneen).
+
+**stinit: definition blocks without modes are ignored, and always have
+been.** Previous versions of the manual page and of the example file
+incorrectly said that a block without any `modeN` keyword (and with no
+identification keywords) can be used to define common parameters for
+all devices. If your `stinit.def` relies on this, those parameters have
+never been applied; move them into each device block, before the first
+`modeN` keyword. The manual page and the example file now describe the
+actual behaviour (Iustin Pop).
+
+### Bug fixes
+
+- stinit: many fixes in the definition file parsing: a final `}` was
+  lost when the last line of the file didn't end with a newline, lines
+  longer than 254 characters were misparsed (they are now reported as
+  errors), and a too long definition overflowed a stack buffer (now also
+  reported as an error; as the definition file is installed by root, the
+  impact should be minimal) (Iustin Pop).
+- Stricter argument checking: both mt and stinit now only accept the
+  exact `--version` option (previously, any option starting with `--v`,
+  e.g. `--verbose`, printed the version), and `mt stshowoptions` now
+  rejects arguments, which were previously silently ignored (Chris
+  Dinneen, and Iustin Pop for stinit).
+- mt: remove the undocumented `cleaning` option of `stoptions`,
+  `stsetoptions` and `stclearoptions`, which sent invalid values to the
+  driver and always failed; use `stsetcln` instead (Chris Dinneen).
+
+### Minor changes
+
+- Documentation fixes: describe the quick (non-secure) erase via
+  `erase 0`, fix the stinit `fast-eod` keyword name and other errors in
+  the manual pages, and use `fast-eod` instead of the older `fast-mteom`
+  spelling in the example file (both are accepted by stinit) (Chris
+  Dinneen).
+- Bash completion improvements: complete the same keywords for
+  `stoptions`, `stsetoptions` and `stclearoptions`, allow completing
+  several of them, only match keywords from their beginning, and
+  complete the missing `-t` and `--version` options (Chris Dinneen).
+- mt: use a bounded write when building the sysfs path in
+  `stshowoptions` (hardening, Chris Dinneen).
+- Development: document the definition file parsing code, make UBSan
+  findings fail the CI sanitizers job, and add a `make san-check` target
+  to run the sanitizer tests locally (Iustin Pop).
+
+Thanks Chris for the many fixes and cleanups!
+
 ## Changes in version 1.8 (Sat, 08 Feb 2025)
 
 After almost two years, a number of minor fixes and improvements have accumulated:
