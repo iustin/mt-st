@@ -426,6 +426,7 @@ static int do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
     struct mtop mt_com;
     char *endp;
 
+    memset(&mt_com, 0, sizeof(mt_com)); /* Also clear the padding */
     mt_com.mt_op = cmd->cmd_code;
     mt_com.mt_count = (argc > 0 ? strtol(*argv, &endp, 0) : 1);
     if (argc > 0 && endp != *argv) {
@@ -466,6 +467,7 @@ static int do_drvbuffer(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 {
     struct mtop mt_com;
 
+    memset(&mt_com, 0, sizeof(mt_com)); /* Also clear the padding */
     mt_com.mt_op = MTSETDRVBUFFER;
     mt_com.mt_count = (argc > 0 ? strtol(*argv, NULL, 0) : 1);
     if ((cmd->cmd_count_bits & MT_ST_OPTIONS) == MT_ST_DEF_OPTIONS)
@@ -492,6 +494,7 @@ static int do_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
     unsigned int len;
     struct mtop mt_com;
 
+    memset(&mt_com, 0, sizeof(mt_com)); /* Also clear the padding */
     mt_com.mt_op = MTSETDRVBUFFER;
     if (argc == 0)
         mt_com.mt_count = 0;
@@ -562,6 +565,7 @@ static int do_partseek(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc
 {
     struct mtop mt_com;
 
+    memset(&mt_com, 0, sizeof(mt_com)); /* Also clear the padding */
     mt_com.mt_op = MTSETPART;
     mt_com.mt_count = (argc > 0 ? strtol(*argv, NULL, 0) : 0);
     if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
@@ -584,6 +588,7 @@ static int do_asf(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc, cha
 {
     struct mtop mt_com;
 
+    memset(&mt_com, 0, sizeof(mt_com)); /* Also clear the padding */
     mt_com.mt_op = MTREW;
     mt_com.mt_count = 1;
     if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {

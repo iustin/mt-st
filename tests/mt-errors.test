@@ -17,3 +17,10 @@
 ./mt -f /dev/null status
 >>>2 /Inappropriate ioctl for device/
 >>>= 2
+
+# /dev/null is not a tape device, so tape operations fail. This also
+# checks (under the memory sanitizer) that no uninitialized data is
+# passed to the ioctl.
+./mt -f /dev/null rewind
+>>>2 /Inappropriate ioctl for device/
+>>>= 2
