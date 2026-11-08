@@ -43,3 +43,13 @@
 ./stinit -p -f tests/data/no-final-newline.data
 >>> /No errors found./
 >>>= 0
+
+# Values directly before the closing brace are parsed
+./stinit -p -f tests/data/value-before-brace.data
+>>> /No errors found./
+>>>= 0
+
+# Unterminated quoted value
+./stinit -p -f tests/data/unterminated-quote.data
+>>>2 /Warning: errors in definition for/
+>>>= 1

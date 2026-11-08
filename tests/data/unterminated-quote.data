@@ -1,0 +1,3 @@
+# A quoted value without the closing quote is an error.
+manufacturer=A model="unterminated" {
+mode1 blocksize=0 timeout="900}

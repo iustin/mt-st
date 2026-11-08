@@ -140,15 +140,21 @@ static char *find_string(char *s, char *target, char *buf, int buflen)
                     cp++;
                     for (cp2 = cp; *cp2 != '"' && *cp2 != '\0'; cp2++)
                         ;
+                    if (*cp2 == '\0') /* Unterminated quoted value */
+                        return NULL;
                 } else {
+                    /* Check if we actually have a non-empty argument. Note
+                       that this only catches "key=" at the end of the
+                       string: in "key= next", the value is "next". */
                     if (*cp == '\0')
                         return NULL;
                     else
                         for (cp2 = cp + 1; isalnum(*cp2) || *cp2 == '-'; cp2++)
                             ;
+                    /* Unlike a quoted one, an unquoted value can end the
+                       string (e.g. when placed directly before the closing
+                       brace), so there is no end of string check here. */
                 }
-                if (*cp2 == '\0')
-                    return NULL;
                 have_arg = TRUE;
                 argp = cp;
             } else {

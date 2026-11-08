@@ -1,0 +1,21 @@
+# Values placed directly before the closing brace must not be dropped.
+manufacturer=A model="numeric" {
+mode1 blocksize=0 compression=1}
+
+manufacturer=A model="hex" {
+mode1 blocksize=0 density=0x44}
+
+manufacturer=A model="kilo" {
+mode1 blocksize=1k}
+
+manufacturer=A model="mega" {
+mode1 blocksize=1M}
+
+manufacturer=A model="quoted" {
+mode1 blocksize=0 timeout="900"}
+
+manufacturer=A model="boolean" {
+mode1 blocksize=0 buffer-writes}
+
+manufacturer=A model="common" {
+scsi2logical=1}
