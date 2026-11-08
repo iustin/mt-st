@@ -118,6 +118,29 @@ static FILE *open_database(char *base)
 }
 
 
+/* Find the parameter named target in the definition string s, return its
+   value and REMOVE the parameter from s.
+
+   The string s is a sequence of whitespace separated parameters of the form
+   "key", "key=value" or "key = value". A key starts with a letter and
+   continues with letters, digits and '-'. A value is either a quoted string
+   ("..."), or a run of letters, digits and '-' (its first character may be
+   anything, e.g. a sign). A parameter without a value has the value "1".
+
+   Matching is by prefix: the key in s must start with target, so the target
+   "manuf" matches "manufacturer" (and also e.g. "manufxyz"). Only the first
+   matching parameter is used and removed; a later duplicate stays in s.
+
+   The removal is what the error checking in find_pars() relies on: after all
+   known parameters have been looked up, any text left in s is unknown or
+   malformed. Note that only the parameter itself is removed, not the
+   whitespace around it.
+
+   On success, the value (with the quotes stripped) is copied into buf
+   (truncated to buflen - 1 characters, or strdup()-ed if buf is NULL) and buf
+   is returned. If target is not found, or the end of s is reached in a
+   malformed parameter ("key=" or an unterminated quote), NULL is returned and
+   buf is set to the empty string. */
 static char *find_string(char *s, char *target, char *buf, int buflen)
 {
     int have_arg;
@@ -194,6 +217,9 @@ static char *find_string(char *s, char *target, char *buf, int buflen)
 }
 
 
+/* Convert a parameter value to a number. Decimal, hex (0x) and octal (0)
+   are accepted, with an optional 'k' (* 1024) or 'M' (* 1024 * 1024) suffix.
+   Anything after the number is ignored, and there is no overflow check. */
 static int num_arg(char *t)
 {
     int nbr;
@@ -215,10 +241,35 @@ static int num_arg(char *t)
 #define NB_EOF 0
 #define NB_ERROR (-1)
 
-/* Read from the database into buf everything up to the next limiter
-   character. Returns NB_OK on success, NB_EOF if the end of the file
-   was reached before the limiter, and NB_ERROR (after printing a
-   message) if the input does not fit the buffers. */
+/* Read from the database into buf all the text up to the next limiter
+   character. find_pars() calls this alternately with '{' (to get the
+   identification part of a definition block) and '}' (to get its body).
+
+   The function keeps state between calls: lbuf holds the not yet used rest
+   of the current line. When the limiter is found in the middle of a line,
+   the text before it is returned, the limiter itself is dropped, and the
+   text after it (minus leading whitespace) is kept in lbuf for the next
+   call. Calling with limiter == 0 (and buf == NULL) rewinds the file and
+   clears this state.
+
+   The text is transformed as follows:
+   - '#' and the rest of the line are removed (comments);
+   - lines not containing the limiter are appended with their leading
+     whitespace removed and followed by one space, which replaces the
+     newline;
+   - the part before the limiter is appended as is, including any leading
+     whitespace;
+   - whitespace inside or at the end of lines is kept unchanged.
+   For example, "a=1\n  b=2  \n  c=3 }" read with '}' gives
+   " a=1 b=2     c=3 " (the first space comes from the initially empty
+   lbuf; the five spaces between "b=2" and "c=3" are the two trailing ones,
+   the newline, and the two leading ones of the last line). The parsing
+   done on the result ignores the extra whitespace.
+
+   Returns NB_OK on success, NB_EOF if the end of the file was reached
+   before the limiter (the text read so far is left in buf), and NB_ERROR
+   (after printing a message) if the text doesn't fit into buf or a line
+   doesn't fit into lbuf. */
 static int next_block(FILE *dbf, char *buf, size_t buflen, int limiter)
 {
     size_t len, n;
@@ -273,6 +324,46 @@ static int next_block(FILE *dbf, char *buf, size_t buflen, int limiter)
 }
 
 
+/* Find the parameters for the device identified by company, product and
+   rev (as returned by INQUIRY) in the database, and store them in defs.
+
+   The database is a sequence of definition blocks:
+
+       manufacturer=X model=Y revision=Z {
+       common parameters
+       mode1 parameters for mode 1
+       mode2 parameters for mode 2 ...
+       }
+
+   For each block:
+   1. The identification part (before '{') is searched for the "manuf",
+      "model" and "rev" keywords; any other text there is silently ignored.
+   2. In normal mode, the block is skipped unless each given keyword is a
+      prefix of the corresponding INQUIRY string; a missing keyword matches
+      anything. In parse mode (-p), all blocks are processed.
+   3. The body is split at the "mode" keywords. The text before the first
+      one is the common part, and each mode section runs up to the next
+      "mode" keyword. Known issues: only "mo" is compared, without a word
+      boundary, so e.g. "more=1" starts a new (illegal) mode section; and a
+      block without any mode keyword sets nothing at all, even though the
+      manual page used to say it could be used for common definitions.
+   4. For each mode section, the common part followed by the section text is
+      put into modebuf, and every known parameter is looked up with
+      find_string(), which removes it from modebuf. If a parameter is given
+      twice, the first occurrence (i.e. the one in the common part) is used,
+      and the second one is left over (and reported as an error).
+   5. Any text left in modebuf is reported as an error.
+
+   The values are stored directly into defs, with -1 meaning "not given"
+   (set_defs() skips those). Since all matching blocks are processed in
+   order, a later block overrides the values set by an earlier one, for the
+   modes it defines. The device wide values (timeout, drive-buffering, ...)
+   are also parsed per mode section, so the last mode section setting them
+   wins.
+
+   In parse mode, returns TRUE if no errors were found. In normal mode,
+   returns TRUE if at least one mode was defined; parsing errors are only
+   reported, they don't make the function fail. */
 static int
 find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, int parse_only)
 {
@@ -280,6 +371,8 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
     char line[LINEMAX], defstr[DEFMAX], comdef[DEFMAX], modebuf[DEFMAX];
     char tmpcomp[LINEMAX], tmpprod[LINEMAX], tmprev[LINEMAX], *cp, c, *t;
     char *nextdef, *curdef, *comptr;
+    /* find_pars() is called once per tape when initializing several tapes;
+       call_nbr is used to report the leftover text errors only once. */
     static int call_nbr = 0;
 
     call_nbr++;
@@ -308,7 +401,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
         defs->modedefs[i].sysv = (-1);
         defs->modedefs[i].defs_for_writes = (-1);
     }
-    next_block(dbf, NULL, 0, 0);
+    next_block(dbf, NULL, 0, 0); /* Rewind the database */
 
     /* Find matching inquiry block */
     for (errors = 0;;) {
@@ -335,6 +428,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
             return FALSE;
         }
 
+        /* Skip the block if it doesn't match the device (steps 1-2) */
         if (!parse_only) {
             if (tmpcomp[0] != '\0' && strncmp(company, tmpcomp, strlen(tmpcomp)))
                 continue;
@@ -345,7 +439,8 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
         } else if (verbose > 0)
             printf("\nParsing modes for ('%s', '%s', '%s').\n", tmpcomp, tmpprod, tmprev);
 
-        /* Block found, get the characteristics */
+        /* Block found, get the characteristics. First copy the text
+           before the first mode keyword into comdef (step 3). */
         for (nextdef = defstr;
              *nextdef != '\0' && (*nextdef != 'm' || strncmp(nextdef, "mode", 2)); nextdef++)
             ;
@@ -356,6 +451,9 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
         comptr = comdef;
         SKIP_WHITE(comptr);
 
+        /* Process each mode section; nextdef points to its "mode" keyword.
+           The section is temporarily terminated by writing a NUL at the
+           start of the next one (the saved character c is put back). */
         for (; *nextdef != '\0';) {
             int tmpsize;
             curdef = nextdef;
@@ -376,6 +474,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
                 continue;
             }
 
+            /* modebuf = common part + text after "modeN" (step 4) */
             if ((tmpsize = snprintf(modebuf, DEFMAX, "%s%s", comptr, cp)) >= DEFMAX) {
                 fprintf(stderr, "Definition too large for ('%s', '%s', '%s'): size %d, maximum is %d\n",
                         tmpcomp, tmpprod, tmprev, tmpsize, DEFMAX);
@@ -389,12 +488,15 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
             if (verbose > 1)
                 fprintf(stderr, "Mode %d definition: %s\n", mode + 1, modebuf);
 
+            /* "disabled" undefines the mode, and the rest of the section is
+               ignored, without checking for errors */
             if ((t = find_string(modebuf, "disab", line, LINEMAX)) != NULL &&
                 strtol(t, NULL, 0) != 0) {
                 defs->modedefs[mode].defined = FALSE;
                 continue;
             }
 
+            /* Device wide parameters */
             if ((t = find_string(modebuf, "drive-", line, LINEMAX)) != NULL)
                 defs->drive_buffering = num_arg(t);
             if ((t = find_string(modebuf, "timeout", line, LINEMAX)) != NULL)
@@ -410,6 +512,7 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
             if ((t = find_string(modebuf, "sili", line, LINEMAX)) != NULL)
                 defs->sili = num_arg(t);
 
+            /* Mode parameters */
             defs->modedefs[mode].defined = TRUE;
             if ((t = find_string(modebuf, "block", line, LINEMAX)) != NULL)
                 defs->modedefs[mode].blocksize = num_arg(t);
@@ -442,6 +545,8 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
             if ((t = find_string(modebuf, "defs-for-w", line, LINEMAX)) != NULL)
                 defs->modedefs[mode].defs_for_writes = num_arg(t);
 
+            /* All known parameters have been removed from modebuf, so
+               anything left is unknown or malformed (step 5) */
             for (t = modebuf; *t == ' ' || *t == '\t'; t++)
                 ;
             if (*t != '\0' && call_nbr <= 1) {
