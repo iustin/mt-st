@@ -28,3 +28,18 @@
 ./stinit -p -v -f tests/data/bad-definition.data
 >>>2 /Warning: errors in definition for/
 >>>= 1
+
+# Definition too long for the internal buffer
+./stinit -p -f tests/data/too-long-definition.data
+>>>2 /Too long definition/
+>>>= 1
+
+# Line too long for the line buffer
+./stinit -p -f tests/data/too-long-line.data
+>>>2 /Too long line in database/
+>>>= 1
+
+# Last line without a trailing newline
+./stinit -p -f tests/data/no-final-newline.data
+>>> /No errors found./
+>>>= 0

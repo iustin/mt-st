@@ -1,0 +1,5 @@
+# The last line of the file has no trailing newline; the closing brace
+# must not be lost.
+manufacturer=A model="no-newline" {
+mode1 blocksize=0
+}

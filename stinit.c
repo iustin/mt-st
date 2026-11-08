@@ -204,43 +204,65 @@ static int num_arg(char *t)
 }
 
 
+/* Return values of next_block() */
+#define NB_OK 1
+#define NB_EOF 0
+#define NB_ERROR (-1)
+
+/* Read from the database into buf everything up to the next limiter
+   character. Returns NB_OK on success, NB_EOF if the end of the file
+   was reached before the limiter, and NB_ERROR (after printing a
+   message) if the input does not fit the buffers. */
 static int next_block(FILE *dbf, char *buf, size_t buflen, int limiter)
 {
-    size_t len;
+    size_t len, n;
     char *cp, *bp;
     static char lbuf[LINEMAX];
 
     if (limiter == 0) { /* Restart */
         rewind(dbf);
         lbuf[0] = '\0';
-        return TRUE;
+        return NB_OK;
     }
 
+    buf[0] = '\0';
     for (len = 0;;) {
         bp = buf + len;
         if ((cp = strchr(lbuf, limiter)) != NULL) {
             *cp = '\0';
+            /* Need room for the text and the terminating NUL. */
+            if (len + strlen(lbuf) + 1 > buflen) {
+                fprintf(stderr, "Too long definition: '%s'\n", buf);
+                return NB_ERROR;
+            }
             strcpy(bp, lbuf);
             cp++;
             SKIP_WHITE(cp);
             memmove(lbuf, cp, strlen(cp) + 1);
-            return TRUE;
-        }
-        if (len + strlen(lbuf) >= buflen) {
-            fprintf(stderr, "Too long definition: '%s'\n", buf);
-            return FALSE;
+            return NB_OK;
         }
         cp = lbuf;
         SKIP_WHITE(cp);
+        /* Need room for the text, the trailing space and the NUL. */
+        if (len + strlen(cp) + 2 > buflen) {
+            fprintf(stderr, "Too long definition: '%s'\n", buf);
+            return NB_ERROR;
+        }
         strcpy(bp, cp);
         strcat(bp, " ");
         len += strlen(cp) + 1;
         if (fgets(lbuf, LINEMAX, dbf) == NULL)
-            return FALSE;
+            return NB_EOF;
+        n = strlen(lbuf);
+        if (n > 0 && lbuf[n - 1] == '\n')
+            lbuf[n - 1] = '\0';
+        else if (!feof(dbf)) {
+            fprintf(stderr, "Too long line in database (maximum is %d characters): '%s'\n",
+                    LINEMAX - 2, lbuf);
+            return NB_ERROR;
+        }
         if ((cp = strchr(lbuf, '#')) != NULL)
             *cp = '\0';
-        else
-            lbuf[strlen(lbuf) - 1] = '\0';
     }
 }
 
@@ -284,15 +306,22 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
 
     /* Find matching inquiry block */
     for (errors = 0;;) {
+        int nb;
 
-        if (!next_block(dbf, defstr, DEFMAX, '{'))
+        nb = next_block(dbf, defstr, DEFMAX, '{');
+        if (nb == NB_ERROR)
+            return FALSE;
+        if (nb == NB_EOF)
             break;
 
         find_string(defstr, "manuf", tmpcomp, LINEMAX);
         find_string(defstr, "model", tmpprod, LINEMAX);
         find_string(defstr, "rev", tmprev, LINEMAX);
 
-        if (!next_block(dbf, defstr, DEFMAX, '}')) {
+        nb = next_block(dbf, defstr, DEFMAX, '}');
+        if (nb == NB_ERROR)
+            return FALSE;
+        if (nb == NB_EOF) {
             fprintf(stderr,
                     "End of definition block not found for ('%s', "
                     "'%s', '%s').\n",
