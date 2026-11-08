@@ -3,8 +3,12 @@
 # in the definition file stinit.def by changing the manufacturer and
 # model fields to correspond the real tape device being defined.
 
-# The common definitions that can usually be used
-{buffer-writes read-ahead async-writes scsi2logical=1}
+# The common definitions that can usually be used are:
+#   buffer-writes read-ahead async-writes scsi2logical=1
+# Note that these can't be given in a separate block without modes
+# (such a block is ignored, see stinit(8)); put them in each device
+# block, before the first modeN keyword. (Up to mt-st 1.8, this file
+# contained such a block here; it never had any effect.)
 
 # A non-compressing DAT (DDS-1)
 # The manufacturer, model, and revision strings can be obtained,

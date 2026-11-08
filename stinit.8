@@ -132,12 +132,36 @@ This keyword matches the string that must match the
 .B product revision level
 returned by the device.
 .PP
-All of the matching initializations are collected in the order they
-are defined in the file. This means that common parameters can be
-defined for all devices using zero keywords for a definition
-block. Another consequence is that, for instance, some parameters can
-be easily given different values for a specific firmware revision without
-repeating the parameters common to all revisions.
+All of the matching definition blocks are processed in the order they
+are defined in the file, and values set by a later block override the
+ones set by an earlier block. This means that, for instance, some
+parameters can be given different values for a specific firmware
+revision without repeating the parameters common to all revisions.
+.PP
+Note however that the parameters in a block are only used for the
+modes defined (using the
+.I modeN
+keywords) in that same block: the parameters given before the first
+.I modeN
+keyword apply to each mode defined in the block, and a block without
+any
+.I modeN
+keyword has no effect at all. Consequently, a block overriding values
+for a specific revision must repeat the
+.I modeN
+keywords of the modes it changes, and it is not possible to define
+common parameters for all devices using a block with zero
+identification keywords and no modes; such a block is silently
+ignored, including by the
+.B -p
+option.
+.PP
+Versions of this manual page up to and including mt-st 1.8 stated
+that common parameters can be defined for all devices using a
+definition block with zero keywords, and the example definition file
+contained such a block. This was incorrect: no known version of
+.B stinit
+applied the parameters from such a block.
 .PP
 The tape parameters are defined using the following keywords. More
 thorough description of the parameters can be found from the
