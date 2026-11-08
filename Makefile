@@ -90,6 +90,31 @@ distcheck: dist
 check: $(PROGS)
 	shelltest -DVERSION=$(VERSION) tests
 
+# Run the test suite under each of the sanitizers, like the "sanitizers"
+# job in .github/workflows/ci.yml does; keep the flags below in sync with
+# it. Each sanitizer needs a full rebuild, so this cleans the tree before
+# each run and after the last one. On failure, the binaries of the failing
+# build are left in place for debugging. A single sanitizer can be run
+# with e.g. "make san-check-address".
+SAN_CC ?= clang
+SANITIZERS ?= address memory undefined
+SAN_CFLAGS_address = -fsanitize=address -O1 -fno-omit-frame-pointer -g
+SAN_CFLAGS_memory = -fsanitize=memory -fsanitize-memory-track-origins \
+	-fPIE -pie -fno-omit-frame-pointer -g -O2
+SAN_CFLAGS_undefined = -fsanitize=undefined -fno-sanitize-recover=all
+# An exit code not expected by any test (UBSan's default is 1).
+SAN_ENV = UBSAN_OPTIONS=exitcode=99
+
+san-check:
+	$(foreach san,$(SANITIZERS),$(MAKE) san-check-$(san) && ) true
+	$(MAKE) clean
+
+san-check-%:
+	@echo "=== Testing with the $* sanitizer ==="
+	$(MAKE) clean
+	$(MAKE) CC="$(SAN_CC)" CFLAGS="$(SAN_CFLAGS_$*)"
+	$(SAN_ENV) $(MAKE) check
+
 # This needs lcov installed, and it's useful for local testing.
 coverage: clean
 	$(MAKE) CFLAGS=-coverage
@@ -108,4 +133,4 @@ clean:
 reindent:
 	clang-format -i mt.c stinit.c
 
-.PHONY: dist distcheck clean reindent
+.PHONY: dist distcheck clean reindent san-check
