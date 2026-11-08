@@ -10,6 +10,24 @@ significant changes below.
 
 ### Significant changes
 
+**mt: numeric arguments are now strictly checked.** Previously,
+invalid, empty or out of range numbers were silently converted to a
+different value, and the command was then run with it and reported
+success: for example `mt fsf abc` or `mt seek ""` used 0,
+`mt fsf 5000000000` skipped 705032704 files (the number was truncated to
+32 bits), `mt sttimeout abc` set the timeout to 0, `mt defblksize 64k`
+set the default block size to 64 bytes, and `mt asf abc` rewound the
+tape.
+
+Such arguments are now rejected with an error and exit code 3, without
+touching the tape or the driver settings. Valid numbers (including the
+documented `-1` for the `def*` commands) work as before.
+
+If you have seen unexplained tape positioning or driver settings in the
+past, this might be the cause. Scripts that unknowingly relied on the
+old behaviour (e.g. passing an empty variable) will now fail (Iustin
+Pop).
+
 **stinit: values directly before a closing brace are no longer
 ignored.** A value placed directly before the closing brace of a
 definition, as in `mode1 blocksize=0 compression=1}`, was silently

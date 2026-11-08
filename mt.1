@@ -16,14 +16,30 @@ drive. The commands can also be listed by running the program with the
 option.
 .PP
 Some operations optionally take an argument or repeat count, which can be given
-after the operation name and defaults to 1. The postfix
+after the operation name and defaults to 1. Numbers can be given in decimal,
+in hexadecimal (with the prefix 0x), or in octal (with a leading 0, so that
+e.g. 010 is 8). For the operations taking a count or a size (such as
+.IR fsf ,
+.IR seek ,
+or
+.IR setblk ),
+the postfix
 .I k
 ,
 .I M
 , or
 .I G
-can be used to give counts in units of 1024, 1024 * 1024, or 1024 *
-1024 * 1024, respectively.
+can be used to give the value in units of 1024, 1024 * 1024, or 1024 *
+1024 * 1024, respectively; this is not supported by
+.IR drvbuffer ,
+.IR partseek ,
+.IR asf ,
+and the operations setting driver options (those starting with
+.I st
+or
+.IR def ).
+Invalid or out of range numbers are rejected with an error, without
+performing the operation.
 .PP
 The available operations are listed below.  Unique abbreviations are
 accepted.  Not all operations are available on all systems, or work on
@@ -269,8 +285,8 @@ set the cleaning request interpretation parameters.
 .PP
 .B mt
 exits with a status of 0 if the operation succeeded, 1 if the
-operation or device name given was invalid, or 2 if the operation
-failed.
+operation or device name given was invalid, 2 if the operation
+failed, or 3 if a numeric argument was invalid or out of range.
 .SH OPTIONS
 .TP
 .B \-h, \-\-help

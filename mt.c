@@ -419,35 +419,61 @@ static void usage(int explain, int exit_code)
 }
 
 
-/* Do a command that simply feeds an argument to the MTIOCTOP ioctl */
-static int do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
+/* Exit code for invalid numeric arguments */
+#define EXIT_BAD_NUMBER 3
+
+/* Parse the numeric argument s: decimal, hexadecimal (with a 0x prefix) or
+   octal (with a leading 0), followed, if allow_units is set, by an optional
+   k, M or G suffix (units of 1024, 1024 * 1024 or 1024 * 1024 * 1024).
+   The whole string must be a valid number, and the value (including the
+   suffix) must be between min and max. On success, store the value in
+   *result and return 0; otherwise, print an error and return -1. */
+static int parse_number(const char *s, int allow_units, long long min, long long max, int *result)
 {
-    int multiplier, max_count;
-    struct mtop mt_com;
+    long long value, multiplier = 1;
     char *endp;
 
-    memset(&mt_com, 0, sizeof(mt_com)); /* Also clear the padding */
-    mt_com.mt_op = cmd->cmd_code;
-    mt_com.mt_count = (argc > 0 ? strtol(*argv, &endp, 0) : 1);
-    if (argc > 0 && endp != *argv) {
-        multiplier = 1;
+    errno = 0;
+    value = strtoll(s, &endp, 0);
+    if (endp != s && allow_units && *endp != '\0' && endp[1] == '\0') {
         if (*endp == 'k')
             multiplier = 1024;
         else if (*endp == 'M')
             multiplier = 1024 * 1024;
         else if (*endp == 'G')
             multiplier = 1024 * 1024 * 1024;
-        else if (*endp != 0) {
-            fprintf(stderr, "mt: illegal count unit.\n");
-            return 3;
-        }
-        max_count = INT_MAX / multiplier;
-        if (abs(mt_com.mt_count) > max_count) {
-            fprintf(stderr, "mt: repeat count too large.\n");
-            return 3;
-        }
-        mt_com.mt_count *= multiplier;
+        if (multiplier != 1)
+            endp++;
     }
+    if (endp == s || *endp != '\0') {
+        fprintf(stderr, "mt: invalid number '%s'%s.\n", s,
+                allow_units ? " (allowed unit suffixes are k, M and G)" : "");
+        return -1;
+    }
+    /* Check the range before multiplying, so that this can't overflow. The
+       divisions round towards zero, which gives exactly the limits needed
+       for value * multiplier to stay between min and max. */
+    if (errno == ERANGE || value > max / multiplier || value < min / multiplier) {
+        fprintf(stderr, "mt: number '%s' out of range (allowed: %lld to %lld).\n",
+                s, min, max);
+        return -1;
+    }
+    *result = (int)(value * multiplier);
+    return 0;
+}
+
+
+/* Do a command that simply feeds an argument to the MTIOCTOP ioctl */
+static int do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
+{
+    struct mtop mt_com;
+
+    memset(&mt_com, 0, sizeof(mt_com)); /* Also clear the padding */
+    mt_com.mt_op = cmd->cmd_code;
+    if (argc == 0)
+        mt_com.mt_count = 1;
+    else if (parse_number(*argv, 1, INT_MIN, INT_MAX, &mt_com.mt_count) < 0)
+        return EXIT_BAD_NUMBER;
     mt_com.mt_count |= cmd->cmd_count_bits;
     if (mt_com.mt_op != MTMKPART && mt_com.mt_count < 0) {
         fprintf(stderr, "mt: negative repeat count\n");
@@ -466,18 +492,25 @@ static int do_standard(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 static int do_drvbuffer(int mtfd, cmdef_tr *cmd, int argc, char **argv)
 {
     struct mtop mt_com;
+    int mask;
 
     memset(&mt_com, 0, sizeof(mt_com)); /* Also clear the padding */
     mt_com.mt_op = MTSETDRVBUFFER;
-    mt_com.mt_count = (argc > 0 ? strtol(*argv, NULL, 0) : 1);
     if ((cmd->cmd_count_bits & MT_ST_OPTIONS) == MT_ST_DEF_OPTIONS)
-        mt_com.mt_count &= 0xfffff;
+        mask = 0xfffff;
 #ifdef MT_ST_TIMEOUTS
     else if ((cmd->cmd_count_bits & MT_ST_OPTIONS) == MT_ST_TIMEOUTS)
-        mt_com.mt_count &= 0x7ffffff;
+        mask = 0x7ffffff;
 #endif
     else
-        mt_com.mt_count &= 0xfffffff;
+        mask = 0xfffffff;
+    /* -1 is allowed, and after masking gives the "all ones" value used to
+       clear the defaults (e.g. MT_ST_CLEAR_DEFAULT). */
+    if (argc == 0)
+        mt_com.mt_count = 1;
+    else if (parse_number(*argv, 0, -1, mask, &mt_com.mt_count) < 0)
+        return EXIT_BAD_NUMBER;
+    mt_com.mt_count &= mask;
     mt_com.mt_count |= cmd->cmd_count_bits;
     if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
         perror(tape_name);
@@ -498,9 +531,10 @@ static int do_options(int mtfd, cmdef_tr *cmd, int argc, char **argv)
     mt_com.mt_op = MTSETDRVBUFFER;
     if (argc == 0)
         mt_com.mt_count = 0;
-    else if (isdigit(**argv))
-        mt_com.mt_count = strtol(*argv, NULL, 0) & ~MT_ST_OPTIONS;
-    else
+    else if (isdigit(**argv)) {
+        if (parse_number(*argv, 0, 0, ~MT_ST_OPTIONS, &mt_com.mt_count) < 0)
+            return EXIT_BAD_NUMBER;
+    } else
         for (an = 0, mt_com.mt_count = 0; an < argc; an++) {
             len = strlen(argv[an]);
             for (i = 0; boolean_tbl[i].name != NULL; i++)
@@ -564,16 +598,23 @@ static int do_tell(int mtfd,
 static int do_partseek(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc, char **argv)
 {
     struct mtop mt_com;
+    int partition = 0, block = 0;
+
+    /* Parse both arguments before moving the tape */
+    if (argc > 0 && parse_number(argv[0], 0, 0, INT_MAX, &partition) < 0)
+        return EXIT_BAD_NUMBER;
+    if (argc > 1 && parse_number(argv[1], 0, 0, INT_MAX, &block) < 0)
+        return EXIT_BAD_NUMBER;
 
     memset(&mt_com, 0, sizeof(mt_com)); /* Also clear the padding */
     mt_com.mt_op = MTSETPART;
-    mt_com.mt_count = (argc > 0 ? strtol(*argv, NULL, 0) : 0);
+    mt_com.mt_count = partition;
     if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
         perror(tape_name);
         return 2;
     }
     mt_com.mt_op = MTSEEK;
-    mt_com.mt_count = (argc > 1 ? strtol(argv[1], NULL, 0) : 0);
+    mt_com.mt_count = block;
     if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {
         perror(tape_name);
         return 2;
@@ -587,6 +628,11 @@ static int do_partseek(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc
 static int do_asf(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc, char **argv)
 {
     struct mtop mt_com;
+    int file_nr = 0;
+
+    /* Parse the argument before moving the tape */
+    if (argc > 0 && parse_number(*argv, 0, 0, INT_MAX, &file_nr) < 0)
+        return EXIT_BAD_NUMBER;
 
     memset(&mt_com, 0, sizeof(mt_com)); /* Also clear the padding */
     mt_com.mt_op = MTREW;
@@ -595,7 +641,7 @@ static int do_asf(int mtfd, cmdef_tr *cmd __attribute__((unused)), int argc, cha
         perror(tape_name);
         return 2;
     }
-    mt_com.mt_count = (argc > 0 ? strtol(*argv, NULL, 0) : 0);
+    mt_com.mt_count = file_nr;
     if (mt_com.mt_count > 0) {
         mt_com.mt_op = MTFSF;
         if (ioctl(mtfd, MTIOCTOP, (char *)&mt_com) < 0) {

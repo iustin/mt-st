@@ -1,0 +1,134 @@
+# Parsing of numeric arguments. /dev/null is not a tape device, so a
+# valid number reaches the ioctl, which fails with exit code 2, while an
+# invalid number is rejected before that, with exit code 3.
+
+# Valid numbers, in all bases and with unit suffixes
+./mt -f /dev/null fsf 3
+>>>2 /Inappropriate ioctl for device/
+>>>= 2
+
+./mt -f /dev/null fsf 0x10
+>>>2 /Inappropriate ioctl for device/
+>>>= 2
+
+./mt -f /dev/null fsf 010
+>>>2 /Inappropriate ioctl for device/
+>>>= 2
+
+./mt -f /dev/null fsf 1G
+>>>2 /Inappropriate ioctl for device/
+>>>= 2
+
+# Negative values are allowed for mkpartition
+./mt -f /dev/null mkpartition -100
+>>>2 /Inappropriate ioctl for device/
+>>>= 2
+
+# Not a number at all, or empty
+./mt -f /dev/null fsf abc
+>>>2 /mt: invalid number 'abc'/
+>>>= 3
+
+./mt -f /dev/null fsf ''
+>>>2 /mt: invalid number ''/
+>>>= 3
+
+# Invalid unit suffix, or trailing garbage
+./mt -f /dev/null fsf 3X
+>>>2 /mt: invalid number '3X' \(allowed unit suffixes are k, M and G\)/
+>>>= 3
+
+./mt -f /dev/null fsf 1kk
+>>>2 /mt: invalid number '1kk'/
+>>>= 3
+
+# Not a valid octal number
+./mt -f /dev/null fsf 08
+>>>2 /mt: invalid number '08'/
+>>>= 3
+
+# Too large: these used to be silently truncated to 32 bits
+./mt -f /dev/null fsf 5000000000
+>>>2 /mt: number '5000000000' out of range/
+>>>= 3
+
+./mt -f /dev/null fsf 4294967297
+>>>2 /mt: number '4294967297' out of range/
+>>>= 3
+
+./mt -f /dev/null fsf 99999999999999999999
+>>>2 /mt: number '99999999999999999999' out of range/
+>>>= 3
+
+# Too large after applying the unit suffix
+./mt -f /dev/null fsf 2G
+>>>2 /mt: number '2G' out of range/
+>>>= 3
+
+./mt -f /dev/null fsf -3G
+>>>2 /mt: number '-3G' out of range/
+>>>= 3
+
+# The most negative value is rejected as a negative count (this used to
+# trigger undefined behaviour)
+./mt -f /dev/null fsf -2147483648
+>>>2 /mt: negative repeat count/
+>>>= 1
+
+# The driver option commands: -1 (clear the default) is valid
+./mt -f /dev/null defblksize -1
+>>>2 /Inappropriate ioctl for device/
+>>>= 2
+
+./mt -f /dev/null sttimeout abc
+>>>2 /mt: invalid number 'abc'\./
+>>>= 3
+
+./mt -f /dev/null sttimeout 99999999999
+>>>2 /mt: number '99999999999' out of range \(allowed: -1 to 134217727\)/
+>>>= 3
+
+./mt -f /dev/null defdensity 0x100000
+>>>2 /mt: number '0x100000' out of range/
+>>>= 3
+
+./mt -f /dev/null sttimeout -2
+>>>2 /mt: number '-2' out of range/
+>>>= 3
+
+# Unit suffixes are only supported for counts
+./mt -f /dev/null defblksize 64k
+>>>2 /mt: invalid number '64k'\./
+>>>= 3
+
+# Numeric form of stoptions
+./mt -f /dev/null stoptions 0x41
+>>>2 /Inappropriate ioctl for device/
+>>>= 2
+
+./mt -f /dev/null stoptions 0x10000000
+>>>2 /mt: number '0x10000000' out of range \(allowed: 0 to 268435455\)/
+>>>= 3
+
+./mt -f /dev/null stoptions 1x
+>>>2 /mt: invalid number '1x'/
+>>>= 3
+
+# partseek and asf check their arguments before moving the tape (asf
+# used to rewind first; the rewind would fail on /dev/null with exit
+# code 2)
+./mt -f /dev/null partseek 1 abc
+>>>2 /mt: invalid number 'abc'/
+>>>= 3
+
+./mt -f /dev/null partseek abc 1
+>>>2 /mt: invalid number 'abc'/
+>>>= 3
+
+./mt -f /dev/null asf abc
+>>>2 /mt: invalid number 'abc'/
+>>>= 3
+
+./mt -f /dev/null asf -1
+>>>2 /mt: number '-1' out of range/
+>>>= 3
