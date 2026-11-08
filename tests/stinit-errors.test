@@ -49,3 +49,12 @@
 ./stinit -f stinit.def.examples 1000a
 >>>2 /Invalid tape device index '1000a': don't know how to parse 'a'/
 >>>= 0
+
+# Only the exact --version is accepted
+./stinit --verbose
+>>>2 /Usage:/
+>>>= 1
+
+./stinit --vxyz
+>>>2 /Usage:/
+>>>= 1

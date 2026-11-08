@@ -944,7 +944,7 @@ int main(int argc, char **argv)
             if (argn >= argc)
                 usage(1);
             dbname = argv[argn];
-        } else if (*(argv[argn] + 1) == '-' && *(argv[argn] + 2) == 'v') {
+        } else if (strcmp(argv[argn], "--version") == 0) {
             printf("stinit v. %s\n", VERSION);
             exit(0);
             break;
