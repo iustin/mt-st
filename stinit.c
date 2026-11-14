@@ -70,6 +70,12 @@ typedef struct _devdef_tr {
 #define MAX_TAPES 32
 #define NBR_MODES 4
 
+/* The results of do_inquiry() and define_tape(); TAPE_NOT_FOUND means
+   that there is no such tape, as opposed to a tape that failed */
+#define TAPE_OK 0
+#define TAPE_FAILED 1
+#define TAPE_NOT_FOUND 2
+
 
 static int verbose = 0;
 
@@ -678,6 +684,9 @@ static int sg_io_errcheck(struct sg_io_hdr *hdp)
 #endif
 #define IOCTL_HEADER_LENGTH 8
 
+/* Get the identification of the tape tname with an INQUIRY command;
+   returns TAPE_OK, TAPE_FAILED, or TAPE_NOT_FOUND if the kernel has no
+   such device. */
 static int do_inquiry(char *tname, char *company, char *product, char *rev, int print_non_found)
 {
     int fn;
@@ -689,13 +698,17 @@ static int do_inquiry(char *tname, char *company, char *product, char *rev, int 
     unsigned char sense_b[SENSE_BUFF_LEN];
 
     if ((fn = open(tname, O_RDONLY | O_NONBLOCK)) < 0) {
+        int err = errno;
+
         if (print_non_found || verbose > 0) {
-            if (errno == ENXIO)
+            if (err == ENXIO)
                 fprintf(stderr, "Device '%s' not found by kernel.\n", tname);
             else
-                fprintf(stderr, "Can't open tape device '%s' (errno %d).\n", tname, errno);
+                fprintf(stderr, "Can't open tape device '%s' (errno %d).\n", tname, err);
         }
-        return FALSE;
+        /* ENXIO: the device file exists, but the kernel has no such tape
+           (e.g. with a static /dev) */
+        return err == ENXIO ? TAPE_NOT_FOUND : TAPE_FAILED;
     }
 
     /* Try SG_IO first, if it is not supported, use SCSI_IOCTL_SEND_COMMAND */
@@ -739,7 +752,7 @@ static int do_inquiry(char *tname, char *company, char *product, char *rev, int 
                     tname, result);
             print_sense(inqptr, BUFLEN - IOCTL_HEADER_LENGTH);
             fprintf(stderr, ".\n");
-            return FALSE;
+            return TAPE_FAILED;
         }
     } else if (result == 0 && sg_io_errcheck(&io_hdr)) {
         close(fn);
@@ -749,7 +762,7 @@ static int do_inquiry(char *tname, char *company, char *product, char *rev, int 
                 tname, io_hdr.status, io_hdr.host_status, io_hdr.driver_status);
         print_sense(sense_b, io_hdr.sb_len_wr);
         fprintf(stderr, ".\n");
-        return FALSE;
+        return TAPE_FAILED;
     }
     if (result < 0) {
         int err = errno;
@@ -759,7 +772,7 @@ static int do_inquiry(char *tname, char *company, char *product, char *rev, int 
                  "The SCSI INQUIRY for device '%s' failed (power off?)", tname);
         errno = err;
         perror((char *)buffer);
-        return FALSE;
+        return TAPE_FAILED;
     }
 
     memcpy(company, inqptr + 8, 8);
@@ -776,7 +789,7 @@ static int do_inquiry(char *tname, char *company, char *product, char *rev, int 
     rev[i] = '\0';
 
     close(fn);
-    return TRUE;
+    return TAPE_OK;
 }
 
 
@@ -1064,9 +1077,11 @@ static int set_defs(devdef_tr *defs, char **fnames)
 }
 
 
+/* Initialize the tape tapeno from the definitions in dbf; returns TAPE_OK,
+   TAPE_FAILED, or TAPE_NOT_FOUND if there is no such tape. */
 static int define_tape(int tapeno, FILE *dbf, devdef_tr *defptr, int print_non_found)
 {
-    int i;
+    int i, result;
     char company[10], product[20], rev[5], *tname, *fnames[NBR_MODES];
 
     if (verbose > 0)
@@ -1074,7 +1089,7 @@ static int define_tape(int tapeno, FILE *dbf, devdef_tr *defptr, int print_non_f
 
     if ((fnames[0] = calloc(NBR_MODES, PATH_MAX)) == NULL) {
         fprintf(stderr, "Can't allocate name buffers.\n");
-        return FALSE;
+        return TAPE_FAILED;
     }
     for (i = 1; i < NBR_MODES; i++)
         fnames[i] = fnames[i - 1] + PATH_MAX;
@@ -1083,16 +1098,16 @@ static int define_tape(int tapeno, FILE *dbf, devdef_tr *defptr, int print_non_f
         if (print_non_found)
             fprintf(stderr, "Can't find any device files for tape %d.\n", tapeno);
         free(fnames[0]);
-        return FALSE;
+        return TAPE_NOT_FOUND;
     }
     if (verbose > 1)
         for (i = 0; i < NBR_MODES; i++)
             printf("Mode %d, name '%s'\n", i + 1, fnames[i]);
 
     tname = fnames[0];
-    if (!do_inquiry(tname, company, product, rev, print_non_found)) {
+    if ((result = do_inquiry(tname, company, product, rev, print_non_found)) != TAPE_OK) {
         free(fnames[0]);
-        return FALSE;
+        return result;
     }
     if (verbose > 0)
         printf("The manufacturer is '%s', product is '%s', and revision "
@@ -1102,16 +1117,16 @@ static int define_tape(int tapeno, FILE *dbf, devdef_tr *defptr, int print_non_f
     if (!find_pars(dbf, company, product, rev, defptr, FALSE)) {
         fprintf(stderr, "Can't find defaults for tape number %d.\n", tapeno);
         free(fnames[0]);
-        return FALSE;
+        return TAPE_FAILED;
     }
 
     if (!set_defs(defptr, fnames)) {
         free(fnames[0]);
-        return FALSE;
+        return TAPE_FAILED;
     }
 
     free(fnames[0]);
-    return TRUE;
+    return TAPE_OK;
 }
 
 
@@ -1183,14 +1198,14 @@ int main(int argc, char **argv)
                 fprintf(stderr, "Can't find tape number for name '%s'.\n", argv[argn]);
                 continue;
             }
-            if (!define_tape(tapeno, dbf, &defs, TRUE)) {
+            if (define_tape(tapeno, dbf, &defs, TRUE) != TAPE_OK) {
                 fprintf(stderr, "Definition for '%s' failed.\n", argv[argn]);
                 retval = 1;
             }
         }
     } else { /* Initialize all SCSI tapes */
         for (tapeno = 0; tapeno < MAX_TAPES; tapeno++)
-            if (!define_tape(tapeno, dbf, &defs, FALSE)) {
+            if (define_tape(tapeno, dbf, &defs, FALSE) != TAPE_OK) {
                 fprintf(stderr, "Initialized %d tape device%s.\n", tapeno,
                         (tapeno != 1 ? "s" : ""));
                 return 0; /* Process tapes until failure */
