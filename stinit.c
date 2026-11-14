@@ -403,6 +403,10 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
     }
     next_block(dbf, NULL, 0, 0); /* Rewind the database */
 
+    /* These are printed in the messages below, even when the database
+       has no blocks at all */
+    tmpcomp[0] = tmpprod[0] = tmprev[0] = '\0';
+
     /* Find matching inquiry block */
     for (errors = 0;;) {
         int nb;
