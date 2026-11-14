@@ -2,11 +2,27 @@
 
 ## Unreleased changes
 
-This release fixes a number of bugs in stinit's definition file
-parsing, makes argument checking stricter in both tools, and includes
-documentation and bash completion cleanups. Some of the fixes change
-which settings stinit applies to the drives, so please read the
-significant changes below.
+This release is mostly about correctness: it fixes a large number of
+bugs, many of them cases where mt or stinit silently did something
+other than what was asked. mt now rejects invalid numeric arguments
+instead of running the command with a different value; stinit has many
+definition file parsing fixes, detects and reports failures of the
+drive identification (the SCSI INQUIRY command), and no longer stops
+initializing the drives at the first one that fails. Several memory
+errors were also fixed, most of them found by running the tests under
+the sanitizers, and the manual pages and bash completion received many
+corrections.
+
+Since many errors that used to go unnoticed are now reported, and some
+settings are now applied differently, existing setups and scripts may
+be affected: please read the significant changes below.
+
+**Note on AI use:** a large part of the bugs fixed in this release were
+found and fixed with the help of Claude, Anthropic's AI model. All the
+changes credited to Iustin Pop below were made together with Claude,
+starting from an AI-assisted review of the code, and were reviewed by
+Iustin Pop; the corresponding commits carry a `Co-Authored-By: Claude`
+line.
 
 ### Significant changes
 
