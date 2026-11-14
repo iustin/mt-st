@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased changes
+## Changes in version 1.9 (Sat, 14 Nov 2026)
 
 This release is mostly about correctness: it fixes a large number of
 bugs, many of them cases where mt or stinit silently did something
