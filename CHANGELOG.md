@@ -47,6 +47,13 @@ a failure. The error message now shows the SCSI status and the sense data
 reported by the drive; previously it showed an unrelated system error,
 e.g. "No such file or directory" (Chris Dinneen and Iustin Pop).
 
+These checks could only be tested with the Linux `scsi_debug` emulated
+tape drive, not with real drives. If stinit no longer configures a drive
+that worked with the previous version, please report it at
+<https://github.com/iustin/mt-st/issues>, including the error message
+printed by stinit: it now shows the status and sense data reported by
+the drive, which should be enough to find out what went wrong.
+
 **stinit: definition blocks without modes are ignored, and always have
 been.** Previous versions of the manual page and of the example file
 incorrectly said that a block without any `modeN` keyword (and with no
