@@ -710,6 +710,9 @@ static int do_inquiry(char *tname, char *company, char *product, char *rev, int 
     io_hdr.sbp = sense_b;
     io_hdr.timeout = DEF_TIMEOUT;
     inqptr = buffer;
+    /* Clear the buffer, so that the identification is empty rather than
+       random if the drive returns less data than expected */
+    memset(buffer, 0, BUFLEN);
 
     /* Two kinds of failures are handled below: the ioctl itself can fail
        (it returns -1 and sets errno), or the device can complete the
