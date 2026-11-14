@@ -644,9 +644,25 @@ static void print_sense(const unsigned char *sb, int len)
 }
 
 
+#define CHECK_CONDITION 0x02
+#define RECOVERED_ERROR 0x01
+#define SG_DRIVER_SENSE 0x08
+
+/* Check the outcome of an SG_IO command: returns 0 if it was successful,
+   and EIO otherwise. A RECOVERED ERROR counts as a success: the command
+   completed, and the device only reports that it had to recover (e.g. by
+   retrying). The DRIVER_SENSE flag in driver_status only says that there
+   is sense data, so it is ignored here. */
 static int sg_io_errcheck(struct sg_io_hdr *hdp)
 {
-    if ((hdp->status & 0x7e) == 0 && hdp->host_status == 0 && hdp->driver_status == 0)
+    int key, asc, ascq;
+
+    if (hdp->host_status != 0 || (hdp->driver_status & ~SG_DRIVER_SENSE) != 0)
+        return EIO;
+    if ((hdp->status & 0x7e) == 0)
+        return 0;
+    if ((hdp->status & 0x7e) == CHECK_CONDITION &&
+        get_sense(hdp->sbp, hdp->sb_len_wr, &key, &asc, &ascq) && key == RECOVERED_ERROR)
         return 0;
     return EIO;
 }

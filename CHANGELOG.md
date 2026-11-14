@@ -42,7 +42,8 @@ status of the INQUIRY command, used to identify the drive, is now
 checked correctly; previously, a failed command was not detected, and
 stinit went on using whatever data it got back. As a consequence, stinit
 may now refuse to configure a drive whose INQUIRY command reports an
-error. The error message now shows the SCSI status and the sense data
+error; a recovered error (sense key RECOVERED ERROR) is not considered
+a failure. The error message now shows the SCSI status and the sense data
 reported by the drive; previously it showed an unrelated system error,
 e.g. "No such file or directory" (Chris Dinneen and Iustin Pop).
 
