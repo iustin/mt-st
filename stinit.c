@@ -700,15 +700,16 @@ static int do_inquiry(char *tname, char *company, char *product, char *rev, int 
     if ((fn = open(tname, O_RDONLY | O_NONBLOCK)) < 0) {
         int err = errno;
 
-        if (print_non_found || verbose > 0) {
-            if (err == ENXIO)
-                fprintf(stderr, "Device '%s' not found by kernel.\n", tname);
-            else
-                fprintf(stderr, "Can't open tape device '%s' (errno %d).\n", tname, err);
-        }
         /* ENXIO: the device file exists, but the kernel has no such tape
            (e.g. with a static /dev) */
-        return err == ENXIO ? TAPE_NOT_FOUND : TAPE_FAILED;
+        if (err == ENXIO) {
+            if (print_non_found || verbose > 0)
+                fprintf(stderr, "Device '%s' not found by kernel.\n", tname);
+            return TAPE_NOT_FOUND;
+        }
+        /* Any other error is a failure of an existing tape */
+        fprintf(stderr, "Can't open tape device '%s' (errno %d).\n", tname, err);
+        return TAPE_FAILED;
     }
 
     /* Try SG_IO first, if it is not supported, use SCSI_IOCTL_SEND_COMMAND */
@@ -1203,13 +1204,25 @@ int main(int argc, char **argv)
                 retval = 1;
             }
         }
-    } else { /* Initialize all SCSI tapes */
-        for (tapeno = 0; tapeno < MAX_TAPES; tapeno++)
-            if (define_tape(tapeno, dbf, &defs, FALSE) != TAPE_OK) {
-                fprintf(stderr, "Initialized %d tape device%s.\n", tapeno,
-                        (tapeno != 1 ? "s" : ""));
-                return 0; /* Process tapes until failure */
-            }
+    } else { /* Initialize all SCSI tapes, up to the first missing one */
+        int initialized = 0, failed = 0, result;
+
+        for (tapeno = 0; tapeno < MAX_TAPES; tapeno++) {
+            result = define_tape(tapeno, dbf, &defs, FALSE);
+            if (result == TAPE_NOT_FOUND)
+                break;
+            if (result == TAPE_OK)
+                initialized++;
+            else
+                failed++;
+        }
+        fprintf(stderr, "Initialized %d tape device%s.\n", initialized,
+                (initialized != 1 ? "s" : ""));
+        if (failed > 0) {
+            fprintf(stderr, "Initialization failed for %d tape device%s.\n",
+                    failed, (failed != 1 ? "s" : ""));
+            retval = 1;
+        }
     }
 
     return retval;

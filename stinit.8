@@ -48,7 +48,10 @@ accessible SCSI tape devices and the device files for the different
 modes of the devices. The tape drives are searched in the scanning
 order of the kernel and searching is stopped at the first non-existing
 tape. All of the found devices are initialized if a matching
-description is found from the parameter file. Note that a mode for a
+description is found from the parameter file.
+If a device can't be initialized (for instance, because no matching
+description is found, or the device is in use), the other devices are
+still initialized, and the exit status is 1. Note that a mode for a
 device is not initialized if the corresponding device file is not
 found even if a matching description for the mode exists. The
 non-rewind device is preferred over the auto-rewind device for each

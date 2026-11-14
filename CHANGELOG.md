@@ -54,6 +54,19 @@ that worked with the previous version, please report it at
 printed by stinit: it now shows the status and sense data reported by
 the drive, which should be enough to find out what went wrong.
 
+**stinit: without arguments, all drives are now initialized even if one
+of them fails.** Previously, stinit run without drive arguments stopped
+at the first drive it couldn't initialize, for any reason (no matching
+definition, a failed INQUIRY, a setting the driver refused, or the
+drive being in use), silently skipped all the following drives, and
+still exited with status 0. It now goes on with the next drive, reports
+how many drives failed, and exits with status 1 if any of them failed;
+as documented, it still stops at the first tape number that doesn't
+exist. Errors opening a drive (e.g. because it is in use) are now also
+reported. If you run stinit without arguments from a boot script or
+service, note that a drive without a matching definition now makes it
+exit with an error (Iustin Pop).
+
 **stinit: definition blocks without modes are ignored, and always have
 been.** Previous versions of the manual page and of the example file
 incorrectly said that a block without any `modeN` keyword (and with no
