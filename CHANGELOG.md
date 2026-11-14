@@ -58,9 +58,11 @@ actual behaviour (Iustin Pop).
 - stinit: many fixes in the definition file parsing: a final `}` was
   lost when the last line of the file didn't end with a newline, lines
   longer than 254 characters were misparsed (they are now reported as
-  errors), and a too long definition overflowed a stack buffer (now also
+  errors), a too long definition overflowed a stack buffer (now also
   reported as an error; as the definition file is installed by root, the
-  impact should be minimal) (Iustin Pop).
+  impact should be minimal), and a stray `mo` at the end of a maximum
+  size definition made the parser read past the end of a buffer (now
+  reported as an illegal mode) (Iustin Pop).
 - Stricter argument checking: both mt and stinit now only accept the
   exact `--version` option (previously, any option starting with `--v`,
   e.g. `--verbose`, printed the version), and `mt stshowoptions` now

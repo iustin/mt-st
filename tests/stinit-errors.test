@@ -24,6 +24,13 @@
 >>>2 /Illegal mode for/
 >>>= 1
 
+# A stray "mo" at the very end of a maximum-size block is an illegal
+# mode, and must not make the parser read past the end of the buffer
+./stinit -p -f tests/data/mode-at-buffer-end.data
+>>> /Errors found!/
+>>>2 /Illegal mode for \('X', '', ''\):[[:space:]]'mo'/
+>>>= 1
+
 # No modes defined
 #./stinit -v -v -f tests/data/no-modes.data
 #>>> /Errors found!/

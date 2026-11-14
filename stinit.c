@@ -465,7 +465,11 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
             c = *nextdef;
             *nextdef = '\0';
 
-            mode = strtol(curdef + 4, &cp, 0) - 1;
+            /* Skip the "mode" keyword. The section can be shorter than
+               that, since the split above only checks for "mo" (e.g. a
+               stray "mo" at the end of the block), so don't skip past
+               its end. */
+            mode = strtol(curdef + strnlen(curdef, 4), &cp, 0) - 1;
             if (mode < 0 || mode >= NBR_MODES) {
                 fprintf(stderr, "Illegal mode for ('%s', '%s', '%s'):\n'%s'\n",
                         tmpcomp, tmpprod, tmprev, curdef);

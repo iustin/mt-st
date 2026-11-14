@@ -1,0 +1,12 @@
+# Body of exactly 2047 characters (DEFMAX - 1) ending in a stray "mo":
+# parsing it must not read past the end of the definition buffer.
+manuf=X {
+mode1                                                                                                                                                                                                                                                
+mode1                                                                                                                                                                                                                                                
+mode1                                                                                                                                                                                                                                                
+mode1                                                                                                                                                                                                                                                
+mode1                                                                                                                                                                                                                                                
+mode1                                                                                                                                                                                                                                                
+mode1                                                                                                                                                                                                                                                
+mode1                                                                                                                                                                                                                                                
+mode2                                                                       mo}
