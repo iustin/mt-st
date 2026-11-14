@@ -63,6 +63,8 @@ actual behaviour (Iustin Pop).
   impact should be minimal), and a stray `mo` at the end of a maximum
   size definition made the parser read past the end of a buffer (now
   reported as an illegal mode) (Iustin Pop).
+- stinit: the error message for a failed SCSI INQUIRY could overflow a
+  stack buffer when the device name was very long (Iustin Pop).
 - Stricter argument checking: both mt and stinit now only accept the
   exact `--version` option (previously, any option starting with `--v`,
   e.g. `--verbose`, printed the version), and `mt stshowoptions` now

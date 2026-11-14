@@ -661,8 +661,8 @@ static int do_inquiry(char *tname, char *company, char *product, char *rev, int 
         }
         if (result) {
             close(fn);
-            sprintf((char *)buffer,
-                    "The SCSI INQUIRY for device '%s' failed (power off?)", tname);
+            snprintf((char *)buffer, BUFLEN,
+                     "The SCSI INQUIRY for device '%s' failed (power off?)", tname);
             perror((char *)buffer);
             return FALSE;
         }
