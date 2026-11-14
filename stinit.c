@@ -595,6 +595,55 @@ find_pars(FILE *dbf, char *company, char *product, char *rev, devdef_tr *defs, i
 }
 
 
+/* Get the sense key, additional sense code (ASC) and qualifier (ASCQ) from
+   the sense data in sb (len bytes long), in either fixed or descriptor
+   format; returns FALSE if there is no (usable) sense data. */
+static int get_sense(const unsigned char *sb, int len, int *key, int *asc, int *ascq)
+{
+    if (len < 1)
+        return FALSE;
+    switch (sb[0] & 0x7f) {
+    case 0x70: /* Fixed format, current and deferred errors */
+    case 0x71:
+        if (len < 14)
+            return FALSE;
+        *key = sb[2] & 0x0f;
+        *asc = sb[12];
+        *ascq = sb[13];
+        return TRUE;
+    case 0x72: /* Descriptor format, current and deferred errors */
+    case 0x73:
+        if (len < 4)
+            return FALSE;
+        *key = sb[1] & 0x0f;
+        *asc = sb[2];
+        *ascq = sb[3];
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
+/* Print the sense key, ASC and ASCQ from the sense data in sb (len bytes
+   long), if there is any, as the end of an error message. */
+static void print_sense(const unsigned char *sb, int len)
+{
+    static const char *const key_names[16] = {
+        "NO SENSE",        "RECOVERED ERROR", "NOT READY",
+        "MEDIUM ERROR",    "HARDWARE ERROR",  "ILLEGAL REQUEST",
+        "UNIT ATTENTION",  "DATA PROTECT",    "BLANK CHECK",
+        "VENDOR SPECIFIC", "COPY ABORTED",    "ABORTED COMMAND",
+        "RESERVED",        "VOLUME OVERFLOW", "MISCOMPARE",
+        "COMPLETED"
+    };
+    int key, asc, ascq;
+
+    if (get_sense(sb, len, &key, &asc, &ascq))
+        fprintf(stderr, ", sense key 0x%x (%s), ASC 0x%02x, ASCQ 0x%02x", key,
+                key_names[key], asc, ascq);
+}
+
+
 static int sg_io_errcheck(struct sg_io_hdr *hdp)
 {
     if ((hdp->status & 0x7e) == 0 && hdp->host_status == 0 && hdp->driver_status == 0)
@@ -646,30 +695,52 @@ static int do_inquiry(char *tname, char *company, char *product, char *rev, int 
     io_hdr.timeout = DEF_TIMEOUT;
     inqptr = buffer;
 
+    /* Two kinds of failures are handled below: the ioctl itself can fail
+       (it returns -1 and sets errno), or the device can complete the
+       command with an error status (which doesn't set errno). Only an
+       unsupported SG_IO ioctl makes us try SCSI_IOCTL_SEND_COMMAND. */
     result = ioctl(fn, SG_IO, &io_hdr);
-    if (!result)
-        result = sg_io_errcheck(&io_hdr);
-    if (result) {
-        if (errno == ENOTTY || errno == EINVAL) {
-            memset(buffer, 0, BUFLEN);
-            ip = (int *)&(buffer[0]);
-            *ip = 0;
-            *(ip + 1) = BUFLEN - 13;
+    if (result < 0 && (errno == ENOTTY || errno == EINVAL)) {
+        memset(buffer, 0, BUFLEN);
+        ip = (int *)&(buffer[0]);
+        *ip = 0;
+        *(ip + 1) = BUFLEN - 13;
 
-            cmd = &(buffer[8]);
-            cmd[0] = INQUIRY;
-            cmd[4] = 200;
+        cmd = &(buffer[8]);
+        cmd[0] = INQUIRY;
+        cmd[4] = 200;
 
-            result = ioctl(fn, SCSI_IOCTL_SEND_COMMAND, buffer);
-            inqptr = buffer + IOCTL_HEADER_LENGTH;
-        }
-        if (result) {
+        result = ioctl(fn, SCSI_IOCTL_SEND_COMMAND, buffer);
+        inqptr = buffer + IOCTL_HEADER_LENGTH;
+        /* A positive result is the SCSI status of the failed command, and
+           the sense data (if any) replaces the command at inqptr. */
+        if (result > 0) {
             close(fn);
-            snprintf((char *)buffer, BUFLEN,
-                     "The SCSI INQUIRY for device '%s' failed (power off?)", tname);
-            perror((char *)buffer);
+            fprintf(stderr, "The SCSI INQUIRY for device '%s' failed: SCSI status 0x%02x",
+                    tname, result);
+            print_sense(inqptr, BUFLEN - IOCTL_HEADER_LENGTH);
+            fprintf(stderr, ".\n");
             return FALSE;
         }
+    } else if (result == 0 && sg_io_errcheck(&io_hdr)) {
+        close(fn);
+        fprintf(stderr,
+                "The SCSI INQUIRY for device '%s' failed: SCSI status 0x%02x, "
+                "host status 0x%02x, driver status 0x%02x",
+                tname, io_hdr.status, io_hdr.host_status, io_hdr.driver_status);
+        print_sense(sense_b, io_hdr.sb_len_wr);
+        fprintf(stderr, ".\n");
+        return FALSE;
+    }
+    if (result < 0) {
+        int err = errno;
+
+        close(fn);
+        snprintf((char *)buffer, BUFLEN,
+                 "The SCSI INQUIRY for device '%s' failed (power off?)", tname);
+        errno = err;
+        perror((char *)buffer);
+        return FALSE;
     }
 
     memcpy(company, inqptr + 8, 8);
