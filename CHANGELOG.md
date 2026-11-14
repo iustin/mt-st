@@ -115,8 +115,9 @@ actual behaviour (Iustin Pop).
 - mt: use a bounded write when building the sysfs path in
   `stshowoptions` (hardening, Chris Dinneen).
 - Development: document the definition file parsing code, make UBSan
-  findings fail the CI sanitizers job, and add a `make san-check` target
-  to run the sanitizer tests locally (Iustin Pop).
+  findings fail the CI sanitizers job, add a `make san-check` target
+  to run the sanitizer tests locally, and make the mt tests independent
+  of the system's default tape device (Iustin Pop).
 
 Thanks Chris for the many fixes and cleanups!
 

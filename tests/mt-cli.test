@@ -8,27 +8,31 @@
 >>>2 /usage: /
 >>>= 1
 
+# The tests below pass an explicit device, so that they don't depend on
+# the system's default tape device (e.g. /dev/tape being a directory,
+# which mt rejects before even looking at the command), nor on $TAPE.
+
 # Unknown command
-./mt to-the-moon
+./mt -f /dev/null to-the-moon
 >>>2 /mt: unknown command "to-the-moon"/
 >>>= 1
 
 # Too many arguments
-./mt rewind 1
+./mt -f /dev/null rewind 1
 >>>2 /mt: too many arguments for the command 'rewind'\./
 >>>= 1
 
 # Ambigous command
-./mt l
+./mt -f /dev/null l
 >>>2 /mt: ambiguous command "l"/
 >>>= 1
 
 # Shortened but not ambiguous command.
-./mt rewi 1
+./mt -f /dev/null rewi 1
 >>>2 /mt: too many arguments for the command 'rewind'\./
 >>>= 1
 
 # Densities command - the only one not requiring a tape.
-./mt densities
+./mt -f /dev/null densities
 >>> /LTO-6/
 >>>= 0
